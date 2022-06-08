@@ -3,6 +3,7 @@ package railwayNetwork
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 )
 
 func SignUpAction(
@@ -15,12 +16,10 @@ func SignUpAction(
 	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
 	if err != nil {
 		panic(err.Error())
-	} else {
-		fmt.Printf("Success")
 	}
 
 	check := db.QueryRow("select exists(select passport_number from client where passport_number = ?)", pNumber)
-	if check != nil {
+	if check.Scan() == sql.ErrNoRows {
 		fmt.Println("This user already exists")
 		return
 	}
@@ -41,12 +40,11 @@ func SignUpAction(
 	if err != nil {
 		fmt.Println(err)
 	}
+	insert.Exec(user.Login, user.PasswordHash, user.FName, user.LName, user.PassportNum)
 
-	resp, err := insert.Exec(user.Login, user.PasswordHash, user.FName, user.LName, user.PassportNum)
-	insert.Close()
+	var userID int
+	db.QueryRow("select id from client where passport_number = ?", pNumber).Scan(&userID)
+	db.QueryRow("insert into user_role (user_id, role) values (?, 'customer')", strconv.Itoa(userID))
 
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(resp)
+	db.Close()
 }

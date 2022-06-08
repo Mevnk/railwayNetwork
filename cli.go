@@ -24,7 +24,7 @@ func (c Cli) Show() {
 func (c Cli) Index() int {
 	prompt := promptui.Select{
 		Label: "Select Day",
-		Items: []string{"1. Sign up", "2. Log in"},
+		Items: []string{"1. Sign up", "2. Log in", "3. Check schedule"},
 	}
 
 	_, result, err := prompt.Run()
