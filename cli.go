@@ -15,6 +15,7 @@ type Cli struct {
 func (c Cli) Init() {
 	c.Actions[0] = c.Index
 	c.Actions[1] = c.SignUp
+	c.Actions[3] = StationSchedule
 }
 
 func (c Cli) Show() {
@@ -36,6 +37,32 @@ func (c Cli) Index() int {
 
 	intVar, err := strconv.Atoi(result[0:1])
 	return intVar
+}
+
+func StationSchedule() int {
+	prompt := promptui.Select{
+		Label: "Select station",
+		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro"},
+	}
+
+	_, result, err := prompt.Run()
+
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return -1
+	}
+
+	schedule := CheckScheduleAction(result)
+	for i, route := range schedule {
+		fmt.Printf("%d: %s %s\n", i+1, route.RouteName, route.arrivalTime)
+	}
+
+	fmt.Println("Press any key to proceed...")
+	var key string
+	fmt.Scan(&key)
+
+	return 0
+
 }
 
 func (c Cli) SignUp() int {

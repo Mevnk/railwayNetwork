@@ -48,3 +48,33 @@ func SignUpAction(
 
 	db.Close()
 }
+
+func CheckScheduleAction(stationName string) []Route {
+	var routes []Route
+
+	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	rows, err := db.Query("select train_id, arrival_time from station where station_name = ?", stationName)
+
+	for rows.Next() {
+		var route Route
+		if err := rows.Scan(&route.RouteID, &route.arrivalTime); err != nil {
+			db.Close()
+			panic(err)
+		}
+		routes = append(routes, route)
+	}
+
+	//db.QueryRow("select route_name from train where id = ?", routes[0].RouteID).Scan(&(routes[0].RouteName))
+	//fmt.Printf("%s %s\n", routes[0].RouteName, routes[0].arrivalTime)
+
+	for i := 0; i < len(routes); i++ {
+		db.QueryRow("select route_name from train where id = ?", routes[i].RouteID).Scan(&(routes[i].RouteName))
+	}
+
+	db.Close()
+	return routes
+}

@@ -7,3 +7,9 @@ type User struct {
 	LName        string
 	PassportNum  string
 }
+
+type Route struct {
+	RouteName   string
+	RouteID     int
+	arrivalTime string
+}
