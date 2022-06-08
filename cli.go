@@ -8,19 +8,25 @@ import (
 )
 
 type Cli struct {
-	Current int
-	Actions map[int]func() int
+	LoggedIn bool
+	role     string
+	Actions  map[int]func() int
 }
 
 func (c Cli) Init() {
+	c.LoggedIn = false
+	c.role = ""
+
 	c.Actions[0] = c.Index
 	c.Actions[1] = c.SignUp
-	c.Actions[3] = StationSchedule
+	c.Actions[2] = c.LoginWindow
+	c.Actions[3] = c.StationSchedule
+	c.Actions[4] = c.CustomerWindow
 }
 
-func (c Cli) Show() {
-	c.Actions[c.Current]()
-}
+//func (c Cli) Show() {
+//	c.Actions[c.Current]()
+//}
 
 func (c Cli) Index() int {
 	prompt := promptui.Select{
@@ -39,7 +45,7 @@ func (c Cli) Index() int {
 	return intVar
 }
 
-func StationSchedule() int {
+func (c *Cli) StationSchedule() int {
 	prompt := promptui.Select{
 		Label: "Select station",
 		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro"},
@@ -61,8 +67,19 @@ func StationSchedule() int {
 	var key string
 	fmt.Scan(&key)
 
+	fmt.Printf("Schedule role %s\n", c.role)
+	fmt.Printf("Schedule login %t\n", c.LoggedIn)
+	fmt.Println("Press any key to proceed...")
+	fmt.Scan(&key)
+	if !c.LoggedIn {
+		return 0
+	} else {
+		switch c.role {
+		case "customer":
+			return 4
+		}
+	}
 	return 0
-
 }
 
 func (c Cli) SignUp() int {
@@ -84,6 +101,64 @@ func (c Cli) SignUp() int {
 
 	if login != "" && password != "" {
 		SignUpAction(login, passwordHash, fName, lName, pNumber)
+	}
+	return 0
+}
+
+func (c *Cli) LoginWindow() int {
+	var login, password string
+
+	fmt.Printf("Enter login: ")
+	fmt.Scan(&login)
+	fmt.Printf("Enter password: ")
+	fmt.Scan(&password)
+	h := fnv.New32a()
+	h.Write([]byte(password))
+	passwordHash := strconv.Itoa(int(h.Sum32()))
+
+	loginAttmp := LoginAction(login, passwordHash)
+
+	fmt.Printf("Login1 role %s\n", c.role)
+	fmt.Printf("Login1 login %t\n", c.LoggedIn)
+	fmt.Println("Press any key to proceed...")
+	var key string
+	fmt.Scan(&key)
+
+	if loginAttmp != 0 {
+		c.LoggedIn = true
+
+		switch loginAttmp {
+		case 4:
+			fmt.Printf("loginAttmp = %d", loginAttmp)
+			c.role = "customer"
+			break
+		}
+	}
+
+	fmt.Printf("Login2 role %s\n", c.role)
+	fmt.Printf("Login2 login %t\n", c.LoggedIn)
+	fmt.Println("Press any key to proceed...")
+	fmt.Scan(&key)
+
+	return loginAttmp
+}
+
+func (c Cli) CustomerWindow() int {
+	prompt := promptui.Select{
+		Label: "Select option",
+		Items: []string{"Check schedule", "Book a ticket", "View your tickets"},
+	}
+
+	_, result, err := prompt.Run()
+
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return -1
+	}
+
+	switch result {
+	case "Check schedule":
+		return 3
 	}
 	return 0
 }

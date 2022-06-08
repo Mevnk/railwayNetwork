@@ -18,8 +18,13 @@ func SignUpAction(
 		panic(err.Error())
 	}
 
-	check := db.QueryRow("select exists(select passport_number from client where passport_number = ?)", pNumber)
-	if check.Scan() == sql.ErrNoRows {
+	var exists bool
+	err = db.QueryRow("select exists(select passport_number from client where passport_number = ?)", pNumber).Scan(&exists)
+	if err != nil && err != sql.ErrNoRows {
+		fmt.Println("error checking if row exists")
+	}
+
+	if exists {
 		fmt.Println("This user already exists")
 		return
 	}
@@ -77,4 +82,33 @@ func CheckScheduleAction(stationName string) []Route {
 
 	db.Close()
 	return routes
+}
+
+func LoginAction(login string, pHash string) int {
+	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	var exists bool
+	err = db.QueryRow("select exists(select id from client where login = ? and password_hash = ?)", login, pHash).Scan(&exists)
+	if err != nil && err != sql.ErrNoRows {
+		fmt.Println("error checking if row exists")
+	}
+
+	if !exists {
+		fmt.Println("Incorrect login or password")
+		return 0
+	}
+
+	var role string
+	db.QueryRow("select role from user_role where user_id = (select id from client where login = ? and password_hash = ?)", login, pHash).Scan(&role)
+	fmt.Printf("role: %s\n", role)
+	switch role {
+	case "customer":
+		return 4
+	}
+
+	return 0
+
 }
