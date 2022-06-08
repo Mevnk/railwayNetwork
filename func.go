@@ -19,6 +19,16 @@ func SignUpAction(
 		fmt.Printf("Success")
 	}
 
+	check := db.QueryRow("select exists(select passport_number from client where passport_number = ?)", pNumber)
+	if check != nil {
+		fmt.Println("This user already exists")
+		return
+	}
+
+	fmt.Println("Continue")
+	var key string
+	fmt.Scan(&key)
+
 	user := User{
 		Login:        login,
 		PasswordHash: passHash,
