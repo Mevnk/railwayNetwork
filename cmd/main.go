@@ -2,11 +2,11 @@ package main
 
 import (
 	_ "github.com/go-sql-driver/mysql"
-	"railwayNetwork/pkg"
+	railway "railwayNetwork"
 )
 
 func main() {
-	menu := pkg.Cli{}
+	menu := railway.Cli{}
 	resp := 0
 
 	menu.Actions = make(map[int]func() int)

@@ -1,11 +1,9 @@
-package pkg
+package railwayNetwork
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/manifoldco/promptui"
 	"hash/fnv"
-	"railwayNetwork"
 	"strconv"
 )
 
@@ -43,13 +41,6 @@ func (c Cli) Index() int {
 func (c Cli) SignUp() int {
 	var login, password, fName, lName, pNumber string
 
-	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
-	if err != nil {
-		panic(err.Error())
-	} else {
-		fmt.Printf("Success")
-	}
-
 	fmt.Printf("Enter login: ")
 	fmt.Scan(&login)
 	fmt.Printf("Enter password: ")
@@ -64,33 +55,8 @@ func (c Cli) SignUp() int {
 	fmt.Printf("Enter your passport number: ")
 	fmt.Scan(&pNumber)
 
-	user := railwayNetwork.User{
-		Login:        login,
-		PasswordHash: passwordHash,
-		FName:        fName,
-		LName:        lName,
-		PassportNum:  pNumber,
+	if login != "" && password != "" {
+		SignUpAction(login, passwordHash, fName, lName, pNumber)
 	}
-
-	check, err := db.Query("select * from train")
-	if err != nil {
-		panic(err.Error())
-	} else {
-		fmt.Printf("Success")
-	}
-	q := "INSERT INTO `client` (login, password_hash, first_name, last_name, passport_number) VALUES (?, ?, ?, ?, ?);"
-	insert, err := db.Prepare(q)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	resp, err := insert.Exec(user.Login, user.PasswordHash, user.FName, user.LName, user.PassportNum)
-	insert.Close()
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(resp)
-	defer check.Close()
-	return 1
+	return 0
 }
