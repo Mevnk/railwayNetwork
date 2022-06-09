@@ -7,7 +7,7 @@ import (
 
 func main() {
 	menu := railway.Cli{}
-	resp := 0
+	resp := 4
 
 	menu.Actions = make(map[int]func() int)
 	menu.Init()

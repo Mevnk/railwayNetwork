@@ -22,6 +22,7 @@ func (c Cli) Init() {
 	c.Actions[2] = c.LoginWindow
 	c.Actions[3] = c.StationSchedule
 	c.Actions[4] = c.CustomerWindow
+	c.Actions[5] = c.BookWindow
 }
 
 //func (c Cli) Show() {
@@ -159,6 +160,67 @@ func (c Cli) CustomerWindow() int {
 	switch result {
 	case "Check schedule":
 		return 3
+	case "Book a ticket":
+		return 5
+
 	}
 	return 0
+}
+
+func (c Cli) BookWindow() int {
+	prompt := promptui.Select{
+		Label: "Select departure station",
+		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro"},
+	}
+
+	_, DepStation, err := prompt.Run()
+
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return -1
+	}
+
+	schedule := CheckScheduleAction(DepStation)
+	for i, route := range schedule {
+		fmt.Printf("%d: %s %s\n", i+1, route.RouteName, route.arrivalTime)
+	}
+
+	var route string
+	fmt.Printf("Enter route number: ")
+	fmt.Scan(&route)
+	if !CheckRoute(route, DepStation) {
+		fmt.Println("There is no route with this number")
+		return 4
+	}
+
+	_, ArrStation, err := prompt.Run()
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return -1
+	}
+	if !CheckRoute(route, ArrStation) {
+		fmt.Println("There is no route with this number")
+		return 4
+	}
+
+	available := CheckPlaceAvailable(route, DepStation, ArrStation)
+	if !available {
+		fmt.Printf("All is booked")
+		fmt.Println("Press any key to proceed...")
+		var key string
+		fmt.Scan(&key)
+		return 4
+	}
+
+	var pNumber string
+	fmt.Printf("Enter the passport number to book the ticket on: ")
+	fmt.Scan(&pNumber)
+	if !CheckUser(pNumber) {
+		fmt.Println("There is no user with this passport in the database")
+		return 4
+	}
+
+	Book(route, DepStation, ArrStation, pNumber)
+
+	return 4
 }
