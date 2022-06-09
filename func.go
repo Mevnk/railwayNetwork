@@ -114,58 +114,6 @@ func LoginAction(login string, pHash string) int {
 
 }
 
-func CheckRoute(route string, station string) bool {
-	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
-	if err != nil {
-		panic(err.Error())
-	}
-
-	var exists bool
-	db.QueryRow("select exists(select train.id from train inner join station s on train.id = s.train_id where route_name = ? and station_name = ?)", route, station).Scan(&exists)
-
-	return exists
-}
-
-func CheckUser(passNum string) bool {
-	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
-	if err != nil {
-		panic(err.Error())
-	}
-
-	var exists bool
-	db.QueryRow("select exists(select id from client where passport_number = ?)", passNum).Scan(&exists)
-
-	return exists
-}
-
-func CheckPlaceAvailable(route string, departure string, arrival string) bool {
-	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
-	if err != nil {
-		panic(err.Error())
-	}
-
-	var buf1 []byte
-	db.QueryRow("select places_available from train where route_name = ?", route).Scan(&buf1)
-	var schedule map[string]interface{}
-	json.Unmarshal(buf1, &schedule)
-
-	var flag int
-	for key, element := range schedule {
-		if key == departure {
-			flag = 1
-		}
-		if key == arrival {
-			flag = 0
-		}
-		if flag == 1 {
-			if element == "0" {
-				return false
-			}
-		}
-	}
-	return true
-}
-
 func Book(route string, departure string, arrival string, passNum string) {
 	var routeID, departureID, arrivalID, userID int
 

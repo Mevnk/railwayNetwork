@@ -188,8 +188,8 @@ func (c Cli) BookWindow() int {
 	var route string
 	fmt.Printf("Enter route number: ")
 	fmt.Scan(&route)
-	if !CheckRoute(route, DepStation) {
-		fmt.Println("There is no route with this number")
+	if !CheckDeparture(route, DepStation) {
+		fmt.Println("Given route doesn't arrive on this station")
 		return 4
 	}
 
@@ -198,17 +198,17 @@ func (c Cli) BookWindow() int {
 		fmt.Printf("Prompt failed %v\n", err)
 		return -1
 	}
-	if !CheckRoute(route, ArrStation) {
-		fmt.Println("There is no route with this number")
+	fmt.Println("BEFORECHECK")
+	if !CheckArrival(route, DepStation, ArrStation) {
+		fmt.Println("This route doesn't lead to this station")
 		return 4
 	}
+
+	fmt.Println("ALLCHECK")
 
 	available := CheckPlaceAvailable(route, DepStation, ArrStation)
 	if !available {
 		fmt.Printf("All is booked")
-		fmt.Println("Press any key to proceed...")
-		var key string
-		fmt.Scan(&key)
 		return 4
 	}
 
