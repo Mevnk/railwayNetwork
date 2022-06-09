@@ -1,19 +1,21 @@
 package railwayNetwork
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/manifoldco/promptui"
 	"hash/fnv"
 	"strconv"
 )
 
-type Cli struct {
+type Driver struct {
 	LoggedIn bool
+	userID   string
 	role     string
 	Actions  map[int]func() int
 }
 
-func (c Cli) Init() {
+func (c Driver) Init() {
 	c.LoggedIn = false
 	c.role = ""
 
@@ -23,13 +25,14 @@ func (c Cli) Init() {
 	c.Actions[3] = c.StationSchedule
 	c.Actions[4] = c.CustomerWindow
 	c.Actions[5] = c.BookWindow
+	c.Actions[6] = c.ViewTickets
 }
 
-//func (c Cli) Show() {
+//func (c Driver) Show() {
 //	c.Actions[c.Current]()
 //}
 
-func (c Cli) Index() int {
+func (c Driver) Index() int {
 	prompt := promptui.Select{
 		Label: "Select Day",
 		Items: []string{"1. Sign up", "2. Log in", "3. Check schedule"},
@@ -46,7 +49,7 @@ func (c Cli) Index() int {
 	return intVar
 }
 
-func (c *Cli) StationSchedule() int {
+func (c *Driver) StationSchedule() int {
 	prompt := promptui.Select{
 		Label: "Select station",
 		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro"},
@@ -86,7 +89,7 @@ func (c *Cli) StationSchedule() int {
 	return 0
 }
 
-func (c Cli) SignUp() int {
+func (c Driver) SignUp() int {
 	var login, password, fName, lName, pNumber string
 
 	fmt.Printf("Enter login: ")
@@ -109,7 +112,7 @@ func (c Cli) SignUp() int {
 	return 0
 }
 
-func (c *Cli) LoginWindow() int {
+func (c *Driver) LoginWindow() int {
 	var login, password string
 
 	fmt.Printf("Enter login: ")
@@ -120,7 +123,9 @@ func (c *Cli) LoginWindow() int {
 	h.Write([]byte(password))
 	passwordHash := strconv.Itoa(int(h.Sum32()))
 
-	loginAttmp := LoginAction(login, passwordHash)
+	loginAttmp, userID := LoginAction(login, passwordHash)
+	c.userID = userID
+	fmt.Println("TEST0 ", c.userID)
 
 	fmt.Printf("Login1 role %s\n", c.role)
 	fmt.Printf("Login1 login %t\n", c.LoggedIn)
@@ -139,15 +144,10 @@ func (c *Cli) LoginWindow() int {
 		}
 	}
 
-	fmt.Printf("Login2 role %s\n", c.role)
-	fmt.Printf("Login2 login %t\n", c.LoggedIn)
-	fmt.Println("Press any key to proceed...")
-	fmt.Scan(&key)
-
 	return loginAttmp
 }
 
-func (c Cli) CustomerWindow() int {
+func (c Driver) CustomerWindow() int {
 	prompt := promptui.Select{
 		Label: "Select option",
 		Items: []string{"Check schedule", "Book a ticket", "View your tickets"},
@@ -165,12 +165,14 @@ func (c Cli) CustomerWindow() int {
 		return 3
 	case "Book a ticket":
 		return 5
+	case "View your tickets":
+		return 6
 
 	}
 	return 0
 }
 
-func (c Cli) BookWindow() int {
+func (c Driver) BookWindow() int {
 	prompt := promptui.Select{
 		Label: "Select departure station",
 		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro"},
@@ -221,6 +223,45 @@ func (c Cli) BookWindow() int {
 	}
 
 	Book(route, DepStation, ArrStation, pNumber)
+
+	return 4
+}
+
+func (c *Driver) ViewTickets() int {
+	var tickets []Ticket
+
+	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	rows, err := db.Query("select train_id, departure_station_id, arrival_station_id from ticket where user_id = ?", c.userID)
+
+	for rows.Next() {
+		var ticket Ticket
+		if err := rows.Scan(&ticket.train, &ticket.departure, &ticket.arrival); err != nil {
+			db.Close()
+			panic(err)
+		}
+
+		tickets = append(tickets, ticket)
+	}
+
+	for i := 0; i < len(tickets); i++ {
+		db.QueryRow("select route_name from train where id = ?", tickets[i].train).Scan(&(tickets[i].train))
+		db.QueryRow("select station_name from station where id = ?", tickets[i].departure).Scan(&(tickets[i].departure))
+		db.QueryRow("select station_name from station where id = ?", tickets[i].arrival).Scan(&(tickets[i].arrival))
+	}
+	fmt.Println("TEST1 ", c.userID)
+	for i := 0; i < len(tickets); i++ {
+		fmt.Println("Route number: ", tickets[i].train)
+		fmt.Println("Departure station: ", tickets[i].departure)
+		fmt.Println("Arrival station: ", tickets[i].arrival)
+	}
+	fmt.Println("TEST2")
+	fmt.Println("Press any key to proceed...")
+	var key string
+	fmt.Scan(&key)
 
 	return 4
 }

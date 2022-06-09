@@ -6,8 +6,8 @@ import (
 )
 
 func main() {
-	menu := railway.Cli{}
-	resp := 4
+	menu := railway.Driver{}
+	resp := 0
 
 	menu.Actions = make(map[int]func() int)
 	menu.Init()

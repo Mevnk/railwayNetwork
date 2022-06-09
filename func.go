@@ -86,7 +86,7 @@ func CheckScheduleAction(stationName string) []Route {
 	return routes
 }
 
-func LoginAction(login string, pHash string) int {
+func LoginAction(login string, pHash string) (int, string) {
 	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
 	if err != nil {
 		panic(err.Error())
@@ -100,18 +100,18 @@ func LoginAction(login string, pHash string) int {
 
 	if !exists {
 		fmt.Println("Incorrect login or password")
-		return 0
+		return 0, "null"
 	}
 
-	var role string
+	var role, id string
 	db.QueryRow("select role from user_role where user_id = (select id from client where login = ? and password_hash = ?)", login, pHash).Scan(&role)
-	fmt.Printf("role: %s\n", role)
+	db.QueryRow("select id from client where login = ? and password_hash = ?", login, pHash).Scan(&id)
 	switch role {
 	case "customer":
-		return 4
+		return 4, id
 	}
 
-	return 0
+	return 0, "null"
 
 }
 

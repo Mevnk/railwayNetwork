@@ -18,3 +18,9 @@ type Route struct {
 type StopPlaces struct {
 	Stop string
 }
+
+type Ticket struct {
+	train     string
+	departure string
+	arrival   string
+}
