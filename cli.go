@@ -60,8 +60,11 @@ func (c *Cli) StationSchedule() int {
 	}
 
 	schedule := CheckScheduleAction(result)
-	for i, route := range schedule {
-		fmt.Printf("%d: %s %s\n", i+1, route.RouteName, route.arrivalTime)
+	for _, route := range schedule {
+		fmt.Println("////////////////////////////")
+		fmt.Println("Route number: ", route.RouteName)
+		fmt.Println("Train arrival: ", route.arrivalTime)
+		fmt.Println("Train route: ", route.Stops)
 	}
 
 	fmt.Println("Press any key to proceed...")
@@ -198,13 +201,10 @@ func (c Cli) BookWindow() int {
 		fmt.Printf("Prompt failed %v\n", err)
 		return -1
 	}
-	fmt.Println("BEFORECHECK")
 	if !CheckArrival(route, DepStation, ArrStation) {
 		fmt.Println("This route doesn't lead to this station")
 		return 4
 	}
-
-	fmt.Println("ALLCHECK")
 
 	available := CheckPlaceAvailable(route, DepStation, ArrStation)
 	if !available {

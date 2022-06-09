@@ -71,6 +71,7 @@ func CheckScheduleAction(stationName string) []Route {
 			db.Close()
 			panic(err)
 		}
+		db.QueryRow("select route from train where id = ?", route.RouteID).Scan(&route.Stops)
 		routes = append(routes, route)
 	}
 
