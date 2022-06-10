@@ -6,13 +6,6 @@ import (
 	"strconv"
 )
 
-type Driver struct {
-	LoggedIn bool
-	userID   string
-	role     string
-	Actions  map[int]func() int
-}
-
 func (c Driver) Init() {
 	c.LoggedIn = false
 	c.role = ""
@@ -24,6 +17,7 @@ func (c Driver) Init() {
 	c.Actions[4] = c.CustomerWindow
 	c.Actions[5] = c.BookWindow
 	c.Actions[6] = c.ViewTickets
+	c.Actions[7] = c.StationWindow
 }
 
 //func (c Driver) Show() {
@@ -69,5 +63,39 @@ func (c Driver) CustomerWindow() int {
 		return 6
 
 	}
+	return 0
+}
+
+func (c *Driver) StationWindow() int {
+	if !CheckStationAssignment(c.userID) {
+		fmt.Println("You are not assigned to a station")
+		fmt.Println("Press any key to proceed...")
+		var key string
+		fmt.Scan(&key)
+		return 0
+	}
+
+	prompt := promptui.Select{
+		Label: "",
+		Items: []string{"Report departure"},
+	}
+
+	_, result, err := prompt.Run()
+
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return -1
+	}
+
+	switch result {
+	case "Report departure":
+		var trainID, actualDeparture string
+		fmt.Print("Enter route number: ")
+		fmt.Scan(&trainID)
+		fmt.Print("Enter actual departure time (format 00:00): ")
+		fmt.Scan(&actualDeparture)
+		ReportDeparture(trainID, actualDeparture, c.userID)
+	}
+
 	return 0
 }

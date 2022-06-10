@@ -19,7 +19,9 @@ func (c *Driver) LoginWindow() int {
 	passwordHash := strconv.Itoa(int(h.Sum32()))
 
 	loginAttmp, userID := LoginAction(login, passwordHash)
-	c.userID = userID
+	if userID != -1 {
+		c.userID = userID
+	}
 	fmt.Println("TEST0 ", c.userID)
 
 	fmt.Printf("Login1 role %s\n", c.role)
@@ -36,13 +38,17 @@ func (c *Driver) LoginWindow() int {
 			fmt.Printf("loginAttmp = %d", loginAttmp)
 			c.role = "customer"
 			break
+		case 7:
+			fmt.Printf("loginAttmp = %d", loginAttmp)
+			c.role = "station"
+			break
 		}
 	}
 
 	return loginAttmp
 }
 
-func LoginAction(login string, pHash string) (int, string) {
+func LoginAction(login string, pHash string) (int, int) {
 	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
 	if err != nil {
 		panic(err.Error())
@@ -56,17 +62,20 @@ func LoginAction(login string, pHash string) (int, string) {
 
 	if !exists {
 		fmt.Println("Incorrect login or password")
-		return 0, "null"
+		return 0, -1
 	}
 
-	var role, id string
+	var role string
+	var id int
 	db.QueryRow("select role from user_role where user_id = (select id from client where login = ? and password_hash = ?)", login, pHash).Scan(&role)
 	db.QueryRow("select id from client where login = ? and password_hash = ?", login, pHash).Scan(&id)
 	switch role {
 	case "customer":
 		return 4, id
+	case "station":
+		return 7, id
 	}
 
-	return 0, "null"
+	return 0, -1
 
 }

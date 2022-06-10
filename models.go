@@ -24,3 +24,10 @@ type Ticket struct {
 	departure string
 	arrival   string
 }
+
+type Driver struct {
+	LoggedIn bool
+	userID   int
+	role     string
+	Actions  map[int]func() int
+}
