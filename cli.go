@@ -95,6 +95,36 @@ func (c *Driver) StationWindow() int {
 		fmt.Print("Enter actual departure time (format 00:00): ")
 		fmt.Scan(&actualDeparture)
 		ReportDeparture(trainID, actualDeparture, c.userID)
+		return 7
+
+	}
+
+	return 0
+}
+
+func (c Driver) AdminWindow() int {
+	prompt := promptui.Select{
+		Label: "",
+		Items: []string{"Report departure"},
+	}
+
+	_, result, err := prompt.Run()
+
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return -1
+	}
+
+	switch result {
+	case "Elevate user":
+		var userPassport, newRole string
+		fmt.Print("Enter user's passport: ")
+		fmt.Scan(&userPassport)
+		fmt.Print("Enter user's new role: ")
+		fmt.Scan(&newRole)
+		
+		return 7
+
 	}
 
 	return 0

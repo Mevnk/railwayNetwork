@@ -22,10 +22,6 @@ func (c *Driver) LoginWindow() int {
 	if userID != -1 {
 		c.userID = userID
 	}
-	fmt.Println("TEST0 ", c.userID)
-
-	fmt.Printf("Login1 role %s\n", c.role)
-	fmt.Printf("Login1 login %t\n", c.LoggedIn)
 	fmt.Println("Press any key to proceed...")
 	var key string
 	fmt.Scan(&key)
@@ -35,12 +31,13 @@ func (c *Driver) LoginWindow() int {
 
 		switch loginAttmp {
 		case 4:
-			fmt.Printf("loginAttmp = %d", loginAttmp)
 			c.role = "customer"
 			break
 		case 7:
-			fmt.Printf("loginAttmp = %d", loginAttmp)
 			c.role = "station"
+			break
+		case 8:
+			c.role = "admin"
 			break
 		}
 	}
@@ -74,6 +71,8 @@ func LoginAction(login string, pHash string) (int, int) {
 		return 4, id
 	case "station":
 		return 7, id
+	case "admin":
+		return 8, id
 	}
 
 	return 0, -1

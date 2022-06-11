@@ -95,3 +95,27 @@ func CheckPlaceAvailable(route string, departure string, arrival string) bool {
 	}
 	return true
 }
+
+func CheckFinalStation(route string, station string) bool {
+	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	var buf1 []byte
+	db.QueryRow("select route from train where route_name = ?", route).Scan(&buf1)
+	var schedule map[string]interface{}
+	json.Unmarshal(buf1, &schedule)
+
+	keys := make([]string, len(schedule))
+	i := 0
+	for k := range schedule {
+		keys[i] = k
+		i++
+	}
+
+	if keys[len(keys)-1] == station {
+		return true
+	}
+	return false
+}
