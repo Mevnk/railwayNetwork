@@ -52,3 +52,19 @@ func ClearBooked(route string) {
 	db.QueryRow("update train set places_available = ? where route_name = ?", newJSON, route)
 
 }
+
+func GetIDFromPassport(pNumber string) int {
+	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if !CheckUser(pNumber) {
+		return -1
+	}
+
+	var id int
+	db.QueryRow("select id from client where passport_number = ?", pNumber).Scan(&id)
+
+	return id
+}
