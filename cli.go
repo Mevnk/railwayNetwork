@@ -18,6 +18,7 @@ func (c Driver) Init() {
 	c.Actions[5] = c.BookWindow
 	c.Actions[6] = c.ViewTickets
 	c.Actions[7] = c.StationWindow
+	c.Actions[8] = c.AdminWindow
 }
 
 //func (c Driver) Show() {
@@ -105,7 +106,7 @@ func (c *Driver) StationWindow() int {
 func (c Driver) AdminWindow() int {
 	prompt := promptui.Select{
 		Label: "",
-		Items: []string{"Report departure"},
+		Items: []string{"Elevate user"},
 	}
 
 	_, result, err := prompt.Run()
@@ -117,14 +118,8 @@ func (c Driver) AdminWindow() int {
 
 	switch result {
 	case "Elevate user":
-		var userPassport, newRole string
-		fmt.Print("Enter user's passport: ")
-		fmt.Scan(&userPassport)
-		fmt.Print("Enter user's new role: ")
-		fmt.Scan(&newRole)
-		
-		return 7
-
+		resp := c.ElevateUserWindow()
+		return resp
 	}
 
 	return 0
