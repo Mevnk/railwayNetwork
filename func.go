@@ -7,6 +7,14 @@ import (
 	"time"
 )
 
+func CheckTimeCorrect(timeTest string) bool {
+	_, err := time.Parse("15:04", timeTest)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func TimeDiff(departure string, actualDeparture string) float64 {
 	departure1, _ := time.Parse("15:04", departure)
 	actualDeparture1, _ := time.Parse("15:04", actualDeparture)

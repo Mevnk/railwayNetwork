@@ -106,7 +106,7 @@ func (c *Driver) StationWindow() int {
 func (c Driver) AdminWindow() int {
 	prompt := promptui.Select{
 		Label: "",
-		Items: []string{"Elevate user", "Blacklist"},
+		Items: []string{"Elevate user", "Blacklist", "Routes", "Log out"},
 	}
 
 	_, result, err := prompt.Run()
@@ -123,6 +123,11 @@ func (c Driver) AdminWindow() int {
 	case "Blacklist":
 		Blacklist()
 		return 8
+	case "Routes":
+		RouteAdmin()
+		return 8
+	case "Log out":
+		return 0
 	}
 
 	return 0

@@ -24,12 +24,14 @@ func Blacklist() {
 		fmt.Scan(&pNumber)
 		userID := GetIDFromPassport(pNumber)
 		BlacklistAdd(userID)
+		break
 	case "Remove from blacklist":
 		var pNumber string
 		fmt.Printf("Enter user's passport number: ")
 		fmt.Scan(&pNumber)
 		userID := GetIDFromPassport(pNumber)
 		BlacklistRemove(userID)
+		break
 	}
 
 }

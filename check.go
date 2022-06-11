@@ -119,3 +119,15 @@ func CheckFinalStation(route string, station string) bool {
 	}
 	return false
 }
+
+func CheckRoute(routeName string) bool {
+	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	var exists bool
+	db.QueryRow("select exists(select id from train where route_name = ?)", routeName).Scan(&exists)
+
+	return exists
+}
