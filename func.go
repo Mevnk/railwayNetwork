@@ -59,6 +59,10 @@ func ClearBooked(route string) {
 	newJSON, _ := json.Marshal(schedule)
 	db.QueryRow("update train set places_available = ? where route_name = ?", newJSON, route)
 
+	var trainID int
+	db.QueryRow("select id from train where route_name = ?", route).Scan(&trainID)
+	db.QueryRow("delete from ticket where train_id = ?", trainID)
+
 }
 
 func GetIDFromPassport(pNumber string) int {
