@@ -88,13 +88,11 @@ func (c *Driver) ViewTickets() int {
 		db.QueryRow("select station_name from station where id = ?", tickets[i].departure).Scan(&(tickets[i].departure))
 		db.QueryRow("select station_name from station where id = ?", tickets[i].arrival).Scan(&(tickets[i].arrival))
 	}
-	fmt.Println("TEST1 ", c.userID)
 	for i := 0; i < len(tickets); i++ {
 		fmt.Println("Route number: ", tickets[i].train)
 		fmt.Println("Departure station: ", tickets[i].departure)
 		fmt.Println("Arrival station: ", tickets[i].arrival)
 	}
-	fmt.Println("TEST2")
 	fmt.Println("Press any key to proceed...")
 	var key string
 	fmt.Scan(&key)
@@ -140,8 +138,6 @@ func Book(route string, departure string, arrival string, passNum string) {
 		bufInt, _ := strconv.Atoi(fmt.Sprintf("%v", element))
 		scheduleEdit[key] = strconv.Itoa(bufInt)
 	}
-	fmt.Println(scheduleEdit["Kyiv"])
-	fmt.Println("Press any key to proceed...")
 	var key string
 	fmt.Scan(&key)
 	newJSON, _ := json.Marshal(scheduleEdit)

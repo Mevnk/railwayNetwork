@@ -30,7 +30,7 @@ func SignUpAction(
 		return
 	}
 
-	fmt.Println("Continue")
+	fmt.Println("Press any key to continue")
 	var key string
 	fmt.Scan(&key)
 

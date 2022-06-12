@@ -22,9 +22,6 @@ func (c *Driver) LoginWindow() int {
 	if userID != -1 {
 		c.userID = userID
 	}
-	fmt.Println("Press any key to proceed...")
-	var key string
-	fmt.Scan(&key)
 
 	if loginAttmp != 0 {
 		c.LoggedIn = true

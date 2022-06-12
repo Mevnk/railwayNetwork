@@ -61,11 +61,6 @@ func (c *Driver) StationSchedule() int {
 	fmt.Println("Press any key to proceed...")
 	var key string
 	fmt.Scan(&key)
-
-	fmt.Printf("Schedule role %s\n", c.role)
-	fmt.Printf("Schedule login %t\n", c.LoggedIn)
-	fmt.Println("Press any key to proceed...")
-	fmt.Scan(&key)
 	if !c.LoggedIn {
 		return 0
 	} else {

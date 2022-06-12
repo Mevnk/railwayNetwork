@@ -30,9 +30,7 @@ func (c Driver) ElevateUserWindow() int {
 		newRole = role
 	}
 
-	fmt.Println("TEST1")
 	ElevateUser(userPassport, newRole)
-	fmt.Println("TEST2")
 
 	return 8
 }
