@@ -52,3 +52,20 @@ func ElevateUser(user string, newRole string) {
 
 	db.QueryRow("update client set role = ? where passport_number = ?", newRole, user)
 }
+
+func AssignToStation(userPassport string, station string) {
+	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if !CheckUser(userPassport) {
+		fmt.Println("This user doesn't exist")
+		return
+	}
+
+	id := GetIDFromPassport(userPassport)
+
+	db.QueryRow("update station set manager_id = ? where station_name = ?", id, station)
+
+}

@@ -106,7 +106,7 @@ func (c *Driver) StationWindow() int {
 func (c Driver) AdminWindow() int {
 	prompt := promptui.Select{
 		Label: "",
-		Items: []string{"Elevate user", "Blacklist", "Routes", "Log out"},
+		Items: []string{"Elevate user", "Blacklist", "Routes", "Assign to station", "Log out"},
 	}
 
 	_, result, err := prompt.Run()
@@ -125,6 +125,22 @@ func (c Driver) AdminWindow() int {
 		return 8
 	case "Routes":
 		RouteAdmin()
+		return 8
+	case "Assign to station":
+		selectStation := promptui.Select{
+			Label: "",
+			Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro", "Donetsk", "Return"},
+		}
+		_, selectStationResult, _ := selectStation.Run()
+		if selectStationResult == "Return" {
+			return 8
+		}
+		var pNumber string
+		fmt.Printf("Enter user's passport: ")
+		fmt.Scan(&pNumber)
+
+		AssignToStation(pNumber, selectStationResult)
+
 		return 8
 	case "Log out":
 		return 0
