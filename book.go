@@ -9,23 +9,40 @@ import (
 )
 
 func (c Driver) BookWindow() int {
-	prompt := promptui.Select{
+	promptDeparture := promptui.Select{
 		Label: "Select departure station",
 		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro"},
 	}
 
-	_, DepStation, err := prompt.Run()
+	_, DepStation, err := promptDeparture.Run()
 
 	if err != nil {
 		fmt.Printf("Prompt failed %v\n", err)
 		return -1
 	}
 
+	promptArrival := promptui.Select{
+		Label: "Select arrival station",
+		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro"},
+	}
+	_, ArrStation, err := promptArrival.Run()
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return -1
+	}
 	schedule := CheckScheduleAction(DepStation)
 	for i, route := range schedule {
-		fmt.Printf("%d: %s %s\n", i+1, route.RouteName, route.arrivalTime)
+		totalAvailable := GetPlaceAvailable(route.RouteName, DepStation, ArrStation)
+		fmt.Println("//////////////////////")
+		fmt.Println("#", i+1)
+		fmt.Println("Route #", route.RouteName)
+		fmt.Println("Arrival time: ", route.arrivalTime)
+		fmt.Println("Places available: ", totalAvailable)
 	}
-
+	promptTotal := promptui.Select{
+		Label: "",
+		Items: []string{"Continue", "Return"},
+	}
 	var route string
 	fmt.Printf("Enter route number: ")
 	fmt.Scan(&route)
@@ -33,20 +50,18 @@ func (c Driver) BookWindow() int {
 		fmt.Println("Given route doesn't arrive on this station")
 		return 4
 	}
-
-	_, ArrStation, err := prompt.Run()
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return -1
-	}
 	if !CheckArrival(route, DepStation, ArrStation) {
 		fmt.Println("This route doesn't lead to this station")
 		return 4
 	}
-
 	available := CheckPlaceAvailable(route, DepStation, ArrStation)
 	if !available {
 		fmt.Printf("All is booked")
+		return 4
+	}
+
+	_, selectTotal, _ := promptTotal.Run()
+	if selectTotal == "Return" {
 		return 4
 	}
 
@@ -117,26 +132,28 @@ func Book(route string, departure string, arrival string, passNum string) {
 
 	var buf1 []byte
 	db.QueryRow("select places_available from train where route_name = ?", route).Scan(&buf1)
-	var schedule map[string]interface{}
-	var scheduleEdit map[string]string
-	scheduleEdit = make(map[string]string)
+	var schedule []string
+	var scheduleEdit []string
 	json.Unmarshal(buf1, &schedule)
 
 	var flag int
-	for key, element := range schedule {
-		if key == departure {
+	var station, placeN string
+	fmt.Println("TEST1 ", len(schedule))
+	for i := 0; i < len(schedule); i++ {
+		station, placeN = ParseJSONBookedPlaces(schedule[i])
+		if station == departure {
 			flag = 1
 		}
-		if key == arrival {
+		if station == arrival {
 			flag = 0
 		}
 		if flag == 1 {
-			bufInt, _ := strconv.Atoi(fmt.Sprintf("%v", element))
-			scheduleEdit[key] = strconv.Itoa(bufInt - 1)
+			bufInt, _ := strconv.Atoi(fmt.Sprintf("%v", placeN))
+			scheduleEdit = append(scheduleEdit, station+":"+strconv.Itoa(bufInt-1))
 			continue
 		}
-		bufInt, _ := strconv.Atoi(fmt.Sprintf("%v", element))
-		scheduleEdit[key] = strconv.Itoa(bufInt)
+		bufInt, _ := strconv.Atoi(fmt.Sprintf("%v", placeN))
+		scheduleEdit = append(scheduleEdit, station+":"+strconv.Itoa(bufInt))
 	}
 	var key string
 	fmt.Scan(&key)

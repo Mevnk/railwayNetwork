@@ -47,14 +47,13 @@ func RouteAdd() {
 	fmt.Scan(&totalPlaces)
 
 	var time string
-	var routeMap map[string]string
-	var routeBook map[string]string
-	routeMap = make(map[string]string)
-	routeBook = make(map[string]string)
+	var routeMap []string
+	var routeBook []string
 	prompt := promptui.Select{
 		Label: "Select station",
 		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro", "Donetsk", "Finish"},
 	}
+	i := 0
 	for true {
 		fmt.Printf("Enter station name")
 		_, station, err := prompt.Run()
@@ -74,18 +73,25 @@ func RouteAdd() {
 			continue
 		}
 
-		routeMap[station] = time
-		routeBook[station] = totalPlaces
+		routeMap = append(routeMap, station+":"+time)
+		routeBook = append(routeBook, station+":"+totalPlaces)
+		i++
 	}
 
+	//for key, _ := range routeMap {
+	//	fmt.Println(routeMap[key])
+	//}
+
 	routeMapJSON, _ := json.Marshal(routeMap)
+	var press string
+	fmt.Scan(&press)
 	routeBookJSON, _ := json.Marshal(routeBook)
 	db.QueryRow("insert into train (total_places_available, route_name, route, places_available, delay) values (?, ?, ?, ?, 0)", totalPlaces, routeName, routeMapJSON, routeBookJSON)
 
 	var trainID int
 	db.QueryRow("select id from train where route_name = ?", routeName).Scan(&trainID)
-	for key, value := range routeMap {
-		db.QueryRow("insert into station (station_name, train_id, arrival_time) values (?, ?, ?)", key, trainID, value)
+	for i := 0; i < len(routeMap); i++ {
+		db.QueryRow("insert into station (station_name, train_id, arrival_time) values (?, ?, ?)", routeMap[i][:len(routeMap[i])-6], trainID, routeMap[i][len(routeMap[i])-5:])
 	}
 
 }

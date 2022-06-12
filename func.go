@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -75,4 +76,58 @@ func GetIDFromPassport(pNumber string) int {
 	db.QueryRow("select id from client where passport_number = ?", pNumber).Scan(&id)
 
 	return id
+}
+
+func GetTotalPlaces(route string) int {
+	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	var total int
+	db.QueryRow("select total_places_available from train where route_name = ?", route).Scan(&total)
+
+	return total
+}
+
+func GetPlaceAvailable(route string, departure string, arrival string) int {
+	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	var buf1 []byte
+	db.QueryRow("select places_available from train where route_name = ?", route).Scan(&buf1)
+	var schedule map[string]interface{}
+	json.Unmarshal(buf1, &schedule)
+
+	var flag int
+	min := GetTotalPlaces(route)
+	var elementInt int
+	for key, element := range schedule {
+		if key == departure {
+			flag = 1
+		}
+		if key == arrival {
+			flag = 0
+		}
+		if flag == 1 {
+			elementInt, _ = strconv.Atoi(fmt.Sprintf("%v", element))
+			if min > elementInt {
+				min = elementInt
+			}
+		}
+	}
+	return min
+}
+
+func ParseJSONBookedPlaces(unparsed string) (string, string) {
+	var station, places string
+	for i := 0; i < len(unparsed); i++ {
+		if unparsed[i] == ':' {
+			station = unparsed[:i]
+			places = unparsed[i+1:]
+		}
+	}
+	return station, places
 }
