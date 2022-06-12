@@ -22,11 +22,7 @@ func RouteAdmin() {
 	case "Add route":
 		RouteAdd()
 	case "Remove route":
-		var pNumber string
-		fmt.Printf("Enter user's passport number: ")
-		fmt.Scan(&pNumber)
-		userID := GetIDFromPassport(pNumber)
-		BlacklistRemove(userID)
+		RouteRemove()
 	}
 
 }
@@ -86,19 +82,39 @@ func RouteAdd() {
 	routeBookJSON, _ := json.Marshal(routeBook)
 	db.QueryRow("insert into train (total_places_available, route_name, route, places_available, delay) values (?, ?, ?, ?, 0)", totalPlaces, routeName, routeMapJSON, routeBookJSON)
 
+	var trainID int
+	db.QueryRow("select id from train where route_name = ?", routeName).Scan(&trainID)
+	for key, value := range routeMap {
+		db.QueryRow("insert into station (station_name, train_id, arrival_time) values (?, ?, ?)", key, trainID, value)
+	}
+
 }
 
-//func RouteRemove(userID int) {
-//	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
-//	if err != nil {
-//		panic(err.Error())
-//	}
-//
-//	var exists bool
-//	db.QueryRow("select exists(select user_id from blacklist where user_id = ?)", userID).Scan(&exists)
-//	if !exists {
-//		return
-//	}
-//
-//	db.QueryRow("delete from blacklist where user_id = ?", userID)
-//}
+func RouteRemove() {
+	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	var routeName string
+	fmt.Printf("Enter number of the route: ")
+	fmt.Scan(&routeName)
+
+	if !CheckRoute(routeName) {
+		fmt.Println("A route by this number doesn't exist")
+		return
+	}
+
+	var routeID int
+	db.QueryRow("select id from train where route_name = ?", routeName).Scan(&routeID)
+	var buf1 []byte
+	db.QueryRow("select route from train where route_name = ?", routeName).Scan(&buf1)
+	var schedule map[string]interface{}
+	json.Unmarshal(buf1, &schedule)
+
+	for key, value := range schedule {
+		db.QueryRow("delete from station where train_id = ? and station_name = ? and arrival_time = ?", routeID, key, value)
+	}
+
+	db.QueryRow("delete from train where id = ?", routeID)
+}
