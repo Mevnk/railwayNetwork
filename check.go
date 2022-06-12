@@ -77,11 +77,14 @@ func CheckPlaceAvailable(route string, departure string, arrival string) bool {
 
 	var buf1 []byte
 	db.QueryRow("select places_available from train where route_name = ?", route).Scan(&buf1)
-	var schedule map[string]interface{}
+	var schedule []string
 	json.Unmarshal(buf1, &schedule)
 
 	var flag int
-	for key, element := range schedule {
+	var key, value string
+	for i := 0; i < len(schedule); i++ {
+		key, value = ParseJSONBookedPlaces(schedule[i])
+		fmt.Println("TEST4.11")
 		if key == departure {
 			flag = 1
 		}
@@ -89,7 +92,7 @@ func CheckPlaceAvailable(route string, departure string, arrival string) bool {
 			flag = 0
 		}
 		if flag == 1 {
-			if element == "0" {
+			if value == "0" {
 				return false
 			}
 		}
@@ -113,7 +116,6 @@ func CheckFinalStation(route string, station string) bool {
 		keys = append(keys, schedule[i][:len(schedule[i])-6])
 	}
 
-	fmt.Print("keys[len(keys)-1] ", keys[len(keys)-1])
 	if keys[len(keys)-1] == station {
 		return true
 	}

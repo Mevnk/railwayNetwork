@@ -115,11 +115,11 @@ func RouteRemove() {
 	db.QueryRow("select id from train where route_name = ?", routeName).Scan(&routeID)
 	var buf1 []byte
 	db.QueryRow("select route from train where route_name = ?", routeName).Scan(&buf1)
-	var schedule map[string]interface{}
+	var schedule []string
 	json.Unmarshal(buf1, &schedule)
 
-	for key, value := range schedule {
-		db.QueryRow("delete from station where train_id = ? and station_name = ? and arrival_time = ?", routeID, key, value)
+	for i := 0; i < len(schedule); i++ {
+		db.QueryRow("delete from station where train_id = ? and station_name = ? and arrival_time = ?", routeID, schedule[i][:len(schedule[i])-6], schedule[i][len(schedule[i])-5:])
 	}
 
 	db.QueryRow("delete from train where id = ?", routeID)

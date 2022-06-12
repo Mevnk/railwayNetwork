@@ -50,11 +50,9 @@ func ClearBooked(route string) {
 		fmt.Println("Route book reset failed")
 		return
 	}
-	fmt.Println("TEST2")
 	var station string
 	for i := 0; i < len(schedule); i++ {
 		station, _ = ParseJSONBookedPlaces(schedule[i])
-		fmt.Println("station: ", station)
 		schedule[i] = station + ":" + total
 	}
 
@@ -99,21 +97,23 @@ func GetPlaceAvailable(route string, departure string, arrival string) int {
 
 	var buf1 []byte
 	db.QueryRow("select places_available from train where route_name = ?", route).Scan(&buf1)
-	var schedule map[string]interface{}
+	var schedule []string
 	json.Unmarshal(buf1, &schedule)
 
 	var flag int
 	min := GetTotalPlaces(route)
 	var elementInt int
-	for key, element := range schedule {
-		if key == departure {
+	var station, places string
+	for i := 0; i < len(schedule); i++ {
+		station, places = ParseJSONBookedPlaces(schedule[i])
+		if station == departure {
 			flag = 1
 		}
-		if key == arrival {
+		if station == arrival {
 			flag = 0
 		}
 		if flag == 1 {
-			elementInt, _ = strconv.Atoi(fmt.Sprintf("%v", element))
+			elementInt, _ = strconv.Atoi(fmt.Sprintf("%v", places))
 			if min > elementInt {
 				min = elementInt
 			}

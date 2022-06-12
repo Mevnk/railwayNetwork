@@ -59,7 +59,6 @@ func (c Driver) BookWindow() int {
 		fmt.Printf("All is booked")
 		return 4
 	}
-
 	_, selectTotal, _ := promptTotal.Run()
 	if selectTotal == "Return" {
 		return 4
@@ -138,7 +137,6 @@ func Book(route string, departure string, arrival string, passNum string) {
 
 	var flag int
 	var station, placeN string
-	fmt.Println("TEST1 ", len(schedule))
 	for i := 0; i < len(schedule); i++ {
 		station, placeN = ParseJSONBookedPlaces(schedule[i])
 		if station == departure {
