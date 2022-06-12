@@ -41,16 +41,12 @@ func SignUpAction(
 		LName:        lName,
 		PassportNum:  pNumber,
 	}
-	q := "INSERT INTO `client` (login, password_hash, first_name, last_name, passport_number) VALUES (?, ?, ?, ?, ?);"
+	q := "INSERT INTO `client` (login, password_hash, first_name, last_name, passport_number, role) VALUES (?, ?, ?, ?, ?, 'customer');"
 	insert, err := db.Prepare(q)
 	if err != nil {
 		fmt.Println(err)
 	}
 	insert.Exec(user.Login, user.PasswordHash, user.FName, user.LName, user.PassportNum)
-
-	var userID int
-	db.QueryRow("select id from client where passport_number = ?", pNumber).Scan(&userID)
-	db.QueryRow("insert into user_role (user_id, role) values (?, 'customer')", strconv.Itoa(userID))
 
 	db.Close()
 }

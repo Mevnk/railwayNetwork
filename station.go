@@ -13,7 +13,7 @@ func CheckStationAssignment(userID int) bool {
 	}
 
 	var exists bool
-	db.QueryRow("select exists(select role from user_role where user_id = ?)", userID).Scan(&exists)
+	db.QueryRow("select exists(select role from client where id = ?)", userID).Scan(&exists)
 
 	return exists
 }

@@ -64,8 +64,8 @@ func LoginAction(login string, pHash string) (int, int) {
 
 	var role string
 	var id int
-	db.QueryRow("select role from user_role where user_id = (select id from client where login = ? and password_hash = ?)", login, pHash).Scan(&role)
-	db.QueryRow("select id from client where login = ? and password_hash = ?", login, pHash).Scan(&id)
+	//db.QueryRow("select role from user_role where user_id = (select id from client where login = ? and password_hash = ?)", login, pHash).Scan(&role)
+	db.QueryRow("select id, role from client where login = ? and password_hash = ?", login, pHash).Scan(&id, &role)
 	switch role {
 	case "customer":
 		return 4, id

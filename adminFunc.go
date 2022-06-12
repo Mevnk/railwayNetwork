@@ -37,7 +37,7 @@ func (c Driver) ElevateUserWindow() int {
 	return 8
 }
 
-func ElevateUser(user string, role string) {
+func ElevateUser(user string, newRole string) {
 	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
 	if err != nil {
 		panic(err.Error())
@@ -50,8 +50,5 @@ func ElevateUser(user string, role string) {
 		return
 	}
 
-	var userID int
-	db.QueryRow("select id from client where passport_number = ?", user).Scan(&userID)
-
-	db.QueryRow("update user_role set role = ? where user_id = ?", role, userID)
+	db.QueryRow("update client set role = ? where passport_number = ?", newRole, user)
 }
