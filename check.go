@@ -133,3 +133,35 @@ func CheckRoute(routeName string) bool {
 
 	return exists
 }
+
+func CheckAdminPrivileges(id int) bool {
+	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	var role string
+	db.QueryRow("select role from client where id = ?", id).Scan(&role)
+
+	if role == "admin" {
+		return true
+	}
+
+	return false
+}
+
+func CheckStationPrivileges(id int) bool {
+	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	var role string
+	db.QueryRow("select role from client where id = ?", id).Scan(&role)
+
+	if role == "station" {
+		return true
+	}
+
+	return false
+}

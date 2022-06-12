@@ -40,7 +40,7 @@ func CheckScheduleAction(stationName string) []Route {
 func (c *Driver) StationSchedule() int {
 	prompt := promptui.Select{
 		Label: "Select station",
-		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro"},
+		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro", "Donetsk", "Finish"},
 	}
 
 	_, result, err := prompt.Run()

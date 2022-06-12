@@ -45,7 +45,7 @@ func (c Driver) Index() int {
 func (c Driver) CustomerWindow() int {
 	prompt := promptui.Select{
 		Label: "Select option",
-		Items: []string{"Check schedule", "Book a ticket", "View your tickets"},
+		Items: []string{"Check schedule", "Book a ticket", "View your tickets", "Log out"},
 	}
 
 	_, result, err := prompt.Run()
@@ -62,12 +62,17 @@ func (c Driver) CustomerWindow() int {
 		return 5
 	case "View your tickets":
 		return 6
+	case "Log out":
+		return 0
 
 	}
 	return 0
 }
 
 func (c *Driver) StationWindow() int {
+	if !CheckStationPrivileges(c.userID) {
+		return 0
+	}
 	if !CheckStationAssignment(c.userID) {
 		fmt.Println("You are not assigned to a station")
 		fmt.Println("Press any key to proceed...")
@@ -78,7 +83,7 @@ func (c *Driver) StationWindow() int {
 
 	prompt := promptui.Select{
 		Label: "",
-		Items: []string{"Report departure"},
+		Items: []string{"Report departure", "Log out"},
 	}
 
 	_, result, err := prompt.Run()
@@ -98,13 +103,18 @@ func (c *Driver) StationWindow() int {
 		fmt.Println("TEST0")
 		ReportDeparture(trainID, actualDeparture, c.userID)
 		return 7
-
+	case "Log out":
+		return 0
 	}
 
 	return 0
 }
 
-func (c Driver) AdminWindow() int {
+func (c *Driver) AdminWindow() int {
+	if !CheckAdminPrivileges(c.userID) {
+		return 0
+	}
+
 	prompt := promptui.Select{
 		Label: "",
 		Items: []string{"Elevate user", "Blacklist", "Routes", "Assign to station", "Log out"},

@@ -11,7 +11,7 @@ import (
 func (c Driver) BookWindow() int {
 	promptDeparture := promptui.Select{
 		Label: "Select departure station",
-		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro"},
+		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro", "Donetsk", "Finish"},
 	}
 
 	_, DepStation, err := promptDeparture.Run()
@@ -23,7 +23,7 @@ func (c Driver) BookWindow() int {
 
 	promptArrival := promptui.Select{
 		Label: "Select arrival station",
-		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro"},
+		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro", "Donetsk", "Finish"},
 	}
 	_, ArrStation, err := promptArrival.Run()
 	if err != nil {

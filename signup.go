@@ -37,10 +37,8 @@ func SignUpAction(
 	fmt.Println("Press any key to continue")
 	var key string
 	fmt.Scan(&key)
-	fmt.Println("TEST1")
 
 	db.QueryRow("insert into client (login, password_hash, first_name, last_name, passport_number, role) values (?, ?, ?, ?, ?, 'customer')", login, passHash, fName, lName, pNumber)
-	fmt.Println("TEST2")
 }
 
 func (c Driver) SignUp() int {
