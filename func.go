@@ -44,20 +44,21 @@ func ClearBooked(route string) {
 		fmt.Println("Getting booked places failed")
 		return
 	}
-	var schedule map[string]interface{}
-	var scheduleEdit map[string]string
-	scheduleEdit = make(map[string]string)
+	var schedule []string
 	err = json.Unmarshal(buf1, &schedule)
 	if err != nil {
 		fmt.Println("Route book reset failed")
 		return
 	}
-
-	for key, _ := range schedule {
-		scheduleEdit[key] = total
+	fmt.Println("TEST2")
+	var station string
+	for i := 0; i < len(schedule); i++ {
+		station, _ = ParseJSONBookedPlaces(schedule[i])
+		fmt.Println("station: ", station)
+		schedule[i] = station + ":" + total
 	}
 
-	newJSON, _ := json.Marshal(scheduleEdit)
+	newJSON, _ := json.Marshal(schedule)
 	db.QueryRow("update train set places_available = ? where route_name = ?", newJSON, route)
 
 }
@@ -127,6 +128,7 @@ func ParseJSONBookedPlaces(unparsed string) (string, string) {
 		if unparsed[i] == ':' {
 			station = unparsed[:i]
 			places = unparsed[i+1:]
+			break
 		}
 	}
 	return station, places

@@ -95,6 +95,7 @@ func (c *Driver) StationWindow() int {
 		fmt.Scan(&trainID)
 		fmt.Print("Enter actual departure time (format 00:00): ")
 		fmt.Scan(&actualDeparture)
+		fmt.Println("TEST0")
 		ReportDeparture(trainID, actualDeparture, c.userID)
 		return 7
 

@@ -3,6 +3,7 @@ package railwayNetwork
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 )
 
 func CheckDeparture(routeName string, station string) bool {
@@ -104,16 +105,15 @@ func CheckFinalStation(route string, station string) bool {
 
 	var buf1 []byte
 	db.QueryRow("select route from train where route_name = ?", route).Scan(&buf1)
-	var schedule map[string]interface{}
+	var schedule []string
 	json.Unmarshal(buf1, &schedule)
 
-	keys := make([]string, len(schedule))
-	i := 0
-	for k := range schedule {
-		keys[i] = k
-		i++
+	var keys []string
+	for i := 0; i < len(schedule); i++ {
+		keys = append(keys, schedule[i][:len(schedule[i])-6])
 	}
 
+	fmt.Print("keys[len(keys)-1] ", keys[len(keys)-1])
 	if keys[len(keys)-1] == station {
 		return true
 	}
