@@ -28,13 +28,17 @@ func (c Driver) Init() {
 func (c Driver) Index() int {
 	prompt := promptui.Select{
 		Label: "Select Day",
-		Items: []string{"1. Sign up", "2. Log in", "3. Check schedule"},
+		Items: []string{"1. Sign up", "2. Log in", "3. Check schedule", "Exit"},
 	}
 
 	_, result, err := prompt.Run()
 
 	if err != nil {
 		fmt.Printf("Prompt failed %v\n", err)
+		return -1
+	}
+
+	if result == "Exit" {
 		return -1
 	}
 

@@ -38,6 +38,7 @@ func (c Driver) BookWindow() int {
 		fmt.Println("Route #", route.RouteName)
 		fmt.Println("Arrival time: ", route.arrivalTime)
 		fmt.Println("Places available: ", totalAvailable)
+		fmt.Println("Stops: ", route.Stops)
 	}
 	promptTotal := promptui.Select{
 		Label: "",
