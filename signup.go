@@ -26,29 +26,21 @@ func SignUpAction(
 	}
 
 	if exists {
-		fmt.Println("This user already exists")
-		return
+		var checkRole string
+		db.QueryRow("select role from client where passport_number = ?", pNumber).Scan(&checkRole)
+		if checkRole == "customer" {
+			fmt.Println("This user already exists")
+			return
+		}
 	}
 
 	fmt.Println("Press any key to continue")
 	var key string
 	fmt.Scan(&key)
+	fmt.Println("TEST1")
 
-	user := User{
-		Login:        login,
-		PasswordHash: passHash,
-		FName:        fName,
-		LName:        lName,
-		PassportNum:  pNumber,
-	}
-	q := "INSERT INTO `client` (login, password_hash, first_name, last_name, passport_number, role) VALUES (?, ?, ?, ?, ?, 'customer');"
-	insert, err := db.Prepare(q)
-	if err != nil {
-		fmt.Println(err)
-	}
-	insert.Exec(user.Login, user.PasswordHash, user.FName, user.LName, user.PassportNum)
-
-	db.Close()
+	db.QueryRow("insert into client (login, password_hash, first_name, last_name, passport_number, role) values (?, ?, ?, ?, ?, 'customer')", login, passHash, fName, lName, pNumber)
+	fmt.Println("TEST2")
 }
 
 func (c Driver) SignUp() int {
