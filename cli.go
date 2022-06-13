@@ -3,7 +3,6 @@ package railwayNetwork
 import (
 	"fmt"
 	"github.com/manifoldco/promptui"
-	"strconv"
 )
 
 func (c Driver) Init() {
@@ -28,7 +27,7 @@ func (c Driver) Init() {
 func (c Driver) Index() int {
 	prompt := promptui.Select{
 		Label: "Select Day",
-		Items: []string{"1. Sign up", "2. Log in", "3. Check schedule", "Exit"},
+		Items: []string{"Sign up", "Log in", "Check schedule", "Exit"},
 	}
 
 	_, result, err := prompt.Run()
@@ -42,8 +41,17 @@ func (c Driver) Index() int {
 		return -1
 	}
 
-	intVar, err := strconv.Atoi(result[0:1])
-	return intVar
+	switch result {
+	case "Sign up":
+		return 1
+	case "Log in":
+		return 2
+	case "Check schedule":
+		return 3
+	case "Exit":
+		return -1
+	}
+	return 0
 }
 
 func (c Driver) CustomerWindow() int {
