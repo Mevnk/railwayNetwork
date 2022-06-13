@@ -213,3 +213,19 @@ func CheckStationPrivileges(id int) bool {
 
 	return false
 }
+
+func CheckBlacklist(userID int) bool {
+	db, err := sql.Open("mysql", "root:misha26105@tcp(127.0.0.1:3306)/railway")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	var exists bool
+	err = db.QueryRow("select exists(select user_id from blacklist where user_id = ?)", userID).Scan(&exists)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return false
+	}
+
+	return exists
+}

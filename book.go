@@ -8,7 +8,12 @@ import (
 	"strconv"
 )
 
-func (c Driver) BookWindow() int {
+func (c *Driver) BookWindow() int {
+	if CheckBlacklist(c.userID) {
+		fmt.Println("You are blacklisted")
+		return 4
+	}
+
 	promptDeparture := promptui.Select{
 		Label: "Select departure station",
 		Items: []string{"Kyiv", "Zaporizhzhya", "Dnipro", "Donetsk", "Finish"},
