@@ -13,7 +13,11 @@ func CheckStationAssignment(userID int) bool {
 	}
 
 	var exists bool
-	db.QueryRow("select exists(select role from client where id = ?)", userID).Scan(&exists)
+	err = db.QueryRow("select exists(select role from client where id = ?)", userID).Scan(&exists)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return false
+	}
 
 	return exists
 }
@@ -26,15 +30,27 @@ func ReportDeparture(routeID string, actualDeparture string, manager int) {
 	}
 
 	var station string
-	db.QueryRow("select station_name from station where manager_id = ?", manager).Scan(&station)
+	err = db.QueryRow("select station_name from station where manager_id = ?", manager).Scan(&station)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return
+	}
 	if CheckFinalStation(routeID, station) {
 		ClearBooked(routeID)
 	}
 
 	var buf1 []byte
-	db.QueryRow("select route from train where route_name = ?", routeID).Scan(&buf1)
+	err = db.QueryRow("select route from train where route_name = ?", routeID).Scan(&buf1)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return
+	}
 	var departureParse []string
-	json.Unmarshal(buf1, &departureParse)
+	err = json.Unmarshal(buf1, &departureParse)
+	if err != nil {
+		fmt.Println("Unmarshaling failed")
+		return
+	}
 	var timeSelect string
 	for i := 0; i < len(departureParse); i++ {
 		stationParse, _ := ParseJSONBookedPlaces(departureParse[i])

@@ -60,7 +60,11 @@ func ClearBooked(route string) {
 	db.QueryRow("update train set places_available = ? where route_name = ?", newJSON, route)
 
 	var trainID int
-	db.QueryRow("select id from train where route_name = ?", route).Scan(&trainID)
+	err = db.QueryRow("select id from train where route_name = ?", route).Scan(&trainID)
+	if err != nil {
+		fmt.Println("\nSQL query failed")
+		return
+	}
 	db.QueryRow("delete from ticket where train_id = ?", trainID)
 
 }
@@ -76,7 +80,11 @@ func GetIDFromPassport(pNumber string) int {
 	}
 
 	var id int
-	db.QueryRow("select id from client where passport_number = ?", pNumber).Scan(&id)
+	err = db.QueryRow("select id from client where passport_number = ?", pNumber).Scan(&id)
+	if err != nil {
+		fmt.Println("\nSQL query failed")
+		return -1
+	}
 
 	return id
 }
@@ -88,7 +96,11 @@ func GetTotalPlaces(route string) int {
 	}
 
 	var total int
-	db.QueryRow("select total_places_available from train where route_name = ?", route).Scan(&total)
+	err = db.QueryRow("select total_places_available from train where route_name = ?", route).Scan(&total)
+	if err != nil {
+		fmt.Println("\nSQL query failed")
+		return -1
+	}
 
 	return total
 }
@@ -100,12 +112,21 @@ func GetPlaceAvailable(route string, departure string, arrival string) int {
 	}
 
 	var buf1 []byte
-	db.QueryRow("select places_available from train where route_name = ?", route).Scan(&buf1)
+	err = db.QueryRow("select places_available from train where route_name = ?", route).Scan(&buf1)
+	if err != nil {
+		return -1
+	}
 	var schedule []string
-	json.Unmarshal(buf1, &schedule)
+	err = json.Unmarshal(buf1, &schedule)
+	if err != nil {
+		return -1
+	}
 
 	var flag int
 	min := GetTotalPlaces(route)
+	if min == -1 {
+		return min
+	}
 	var elementInt int
 	var station, places string
 	for i := 0; i < len(schedule); i++ {

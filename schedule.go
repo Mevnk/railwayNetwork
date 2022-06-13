@@ -19,10 +19,13 @@ func CheckScheduleAction(stationName string) []Route {
 	for rows.Next() {
 		var route Route
 		if err := rows.Scan(&route.RouteID, &route.arrivalTime); err != nil {
-			db.Close()
 			panic(err)
 		}
-		db.QueryRow("select route from train where id = ?", route.RouteID).Scan(&route.Stops)
+		err = db.QueryRow("select route from train where id = ?", route.RouteID).Scan(&route.Stops)
+		if err != nil {
+			fmt.Println("\nSQL query failed")
+			return nil
+		}
 		routes = append(routes, route)
 	}
 
@@ -30,10 +33,12 @@ func CheckScheduleAction(stationName string) []Route {
 	//fmt.Printf("%s %s\n", routes[0].RouteName, routes[0].arrivalTime)
 
 	for i := 0; i < len(routes); i++ {
-		db.QueryRow("select route_name from train where id = ?", routes[i].RouteID).Scan(&(routes[i].RouteName))
+		err := db.QueryRow("select route_name from train where id = ?", routes[i].RouteID).Scan(&(routes[i].RouteName))
+		if err != nil {
+			return nil
+		}
 	}
 
-	db.Close()
 	return routes
 }
 
@@ -47,10 +52,19 @@ func (c *Driver) StationSchedule() int {
 
 	if err != nil {
 		fmt.Printf("Prompt failed %v\n", err)
-		return -1
+		if c.role == "customer" {
+			return 4
+		}
+		return 0
 	}
 
 	schedule := CheckScheduleAction(result)
+	if schedule == nil {
+		if c.role == "customer" {
+			return 4
+		}
+		return 0
+	}
 	for _, route := range schedule {
 		fmt.Println("////////////////////////////")
 		fmt.Println("Route number: ", route.RouteName)
@@ -60,7 +74,13 @@ func (c *Driver) StationSchedule() int {
 
 	fmt.Println("Press any key to proceed...")
 	var key string
-	fmt.Scan(&key)
+	_, err = fmt.Scan(&key)
+	if err != nil {
+		if c.role == "customer" {
+			return 4
+		}
+		return 0
+	}
 	if !c.LoggedIn {
 		return 0
 	} else {

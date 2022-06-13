@@ -27,7 +27,11 @@ func SignUpAction(
 
 	if exists {
 		var checkRole string
-		db.QueryRow("select role from client where passport_number = ?", pNumber).Scan(&checkRole)
+		err := db.QueryRow("select role from client where passport_number = ?", pNumber).Scan(&checkRole)
+		if err != nil {
+			fmt.Println("\nSQL query failed")
+			return
+		}
 		if checkRole == "customer" {
 			fmt.Println("This user already exists")
 			return
@@ -36,7 +40,10 @@ func SignUpAction(
 
 	fmt.Println("Press any key to continue")
 	var key string
-	fmt.Scan(&key)
+	_, err = fmt.Scan(&key)
+	if err != nil {
+		return
+	}
 
 	db.QueryRow("insert into client (login, password_hash, first_name, last_name, passport_number, role) values (?, ?, ?, ?, ?, 'customer')", login, passHash, fName, lName, pNumber)
 }
@@ -45,18 +52,42 @@ func (c Driver) SignUp() int {
 	var login, password, fName, lName, pNumber string
 
 	fmt.Printf("Enter login: ")
-	fmt.Scan(&login)
+	_, err := fmt.Scan(&login)
+	if err != nil {
+		fmt.Println("\nIncorrect input")
+		return 0
+	}
 	fmt.Printf("Enter password: ")
-	fmt.Scan(&password)
+	_, err = fmt.Scan(&password)
+	if err != nil {
+		fmt.Println("\nIncorrect input")
+		return 0
+	}
 	h := fnv.New32a()
-	h.Write([]byte(password))
+	_, err = h.Write([]byte(password))
+	if err != nil {
+		fmt.Println("\nHashing error")
+		return 0
+	}
 	passwordHash := strconv.Itoa(int(h.Sum32()))
 	fmt.Printf("Enter your first name: ")
-	fmt.Scan(&fName)
+	_, err = fmt.Scan(&fName)
+	if err != nil {
+		fmt.Println("\nIncorrect input")
+		return 0
+	}
 	fmt.Printf("Enter last name: ")
-	fmt.Scan(&lName)
+	_, err = fmt.Scan(&lName)
+	if err != nil {
+		fmt.Println("\nIncorrect input")
+		return 0
+	}
 	fmt.Printf("Enter your passport number: ")
-	fmt.Scan(&pNumber)
+	_, err = fmt.Scan(&pNumber)
+	if err != nil {
+		fmt.Println("\nIncorrect input")
+		return 0
+	}
 
 	if login != "" && password != "" {
 		SignUpAction(login, passwordHash, fName, lName, pNumber)

@@ -21,14 +21,22 @@ func Blacklist() {
 	case "Add to blacklist":
 		var pNumber string
 		fmt.Printf("Enter user's passport number: ")
-		fmt.Scan(&pNumber)
+		_, err := fmt.Scan(&pNumber)
+		if err != nil {
+			fmt.Println("Invalid passport")
+			return
+		}
 		userID := GetIDFromPassport(pNumber)
 		BlacklistAdd(userID)
 		break
 	case "Remove from blacklist":
 		var pNumber string
 		fmt.Printf("Enter user's passport number: ")
-		fmt.Scan(&pNumber)
+		_, err := fmt.Scan(&pNumber)
+		if err != nil {
+			fmt.Println("Invalid passport")
+			return
+		}
 		userID := GetIDFromPassport(pNumber)
 		BlacklistRemove(userID)
 		break
@@ -52,7 +60,11 @@ func BlacklistRemove(userID int) {
 	}
 
 	var exists bool
-	db.QueryRow("select exists(select user_id from blacklist where user_id = ?)", userID).Scan(&exists)
+	err1 := db.QueryRow("select exists(select user_id from blacklist where user_id = ?)", userID).Scan(&exists)
+	if err1 != nil {
+		fmt.Println("SQL Query failed")
+		return
+	}
 	if !exists {
 		return
 	}

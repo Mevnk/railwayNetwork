@@ -31,8 +31,14 @@ func (c Driver) BookWindow() int {
 		return -1
 	}
 	schedule := CheckScheduleAction(DepStation)
+	if schedule == nil {
+		return 4
+	}
 	for i, route := range schedule {
 		totalAvailable := GetPlaceAvailable(route.RouteName, DepStation, ArrStation)
+		if totalAvailable == -1 {
+			continue
+		}
 		fmt.Println("//////////////////////")
 		fmt.Println("#", i+1)
 		fmt.Println("Route #", route.RouteName)
@@ -46,7 +52,11 @@ func (c Driver) BookWindow() int {
 	}
 	var route string
 	fmt.Printf("Enter route number: ")
-	fmt.Scan(&route)
+	_, err1 := fmt.Scan(&route)
+	if err1 != nil {
+		fmt.Println("Invalid route")
+		return 4
+	}
 	if !CheckDeparture(route, DepStation) {
 		fmt.Println("Given route doesn't arrive on this station")
 		return 4
@@ -67,7 +77,11 @@ func (c Driver) BookWindow() int {
 
 	var pNumber string
 	fmt.Printf("Enter the passport number to book the ticket on: ")
-	fmt.Scan(&pNumber)
+	_, err2 := fmt.Scan(&pNumber)
+	if err2 != nil {
+		fmt.Println("Invalid passport")
+		return 4
+	}
 	if !CheckUser(pNumber) {
 		fmt.Println("There is no user with this passport in the database")
 		return 4
@@ -91,7 +105,6 @@ func (c *Driver) ViewTickets() int {
 	for rows.Next() {
 		var ticket Ticket
 		if err := rows.Scan(&ticket.train, &ticket.departure, &ticket.arrival); err != nil {
-			db.Close()
 			panic(err)
 		}
 
@@ -99,9 +112,21 @@ func (c *Driver) ViewTickets() int {
 	}
 
 	for i := 0; i < len(tickets); i++ {
-		db.QueryRow("select route_name from train where id = ?", tickets[i].train).Scan(&(tickets[i].train))
-		db.QueryRow("select station_name from station where id = ?", tickets[i].departure).Scan(&(tickets[i].departure))
-		db.QueryRow("select station_name from station where id = ?", tickets[i].arrival).Scan(&(tickets[i].arrival))
+		err := db.QueryRow("select route_name from train where id = ?", tickets[i].train).Scan(&(tickets[i].train))
+		if err != nil {
+			fmt.Println("SQL query failed")
+			return 4
+		}
+		err = db.QueryRow("select station_name from station where id = ?", tickets[i].departure).Scan(&(tickets[i].departure))
+		if err != nil {
+			fmt.Println("SQL query failed")
+			return 4
+		}
+		err = db.QueryRow("select station_name from station where id = ?", tickets[i].arrival).Scan(&(tickets[i].arrival))
+		if err != nil {
+			fmt.Println("SQL query failed")
+			return 4
+		}
 	}
 	for i := 0; i < len(tickets); i++ {
 		fmt.Println("Route number: ", tickets[i].train)
@@ -110,7 +135,10 @@ func (c *Driver) ViewTickets() int {
 	}
 	fmt.Println("Press any key to proceed...")
 	var key string
-	fmt.Scan(&key)
+	_, err = fmt.Scan(&key)
+	if err != nil {
+		return 4
+	}
 
 	return 4
 }
@@ -123,18 +151,42 @@ func Book(route string, departure string, arrival string, passNum string) {
 		panic(err.Error())
 	}
 
-	db.QueryRow("select train.id from train inner join station s on train.id = s.train_id where route_name = ?", route).Scan(&routeID)
-	db.QueryRow("select station.id from station where station_name = ?", departure).Scan(&departureID)
-	db.QueryRow("select station.id from station where station_name = ?", arrival).Scan(&arrivalID)
-	db.QueryRow("select client.id from client where passport_number = ?", passNum).Scan(&userID)
+	err = db.QueryRow("select train.id from train inner join station s on train.id = s.train_id where route_name = ?", route).Scan(&routeID)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return
+	}
+	err = db.QueryRow("select station.id from station where station_name = ?", departure).Scan(&departureID)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return
+	}
+	err = db.QueryRow("select station.id from station where station_name = ?", arrival).Scan(&arrivalID)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return
+	}
+	err = db.QueryRow("select client.id from client where passport_number = ?", passNum).Scan(&userID)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return
+	}
 
 	db.QueryRow("insert into ticket (user_id, train_id, departure_station_id, arrival_station_id)  values (?, ?, ?, ?)", userID, routeID, departureID, arrivalID)
 
 	var buf1 []byte
-	db.QueryRow("select places_available from train where route_name = ?", route).Scan(&buf1)
+	err = db.QueryRow("select places_available from train where route_name = ?", route).Scan(&buf1)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return
+	}
 	var schedule []string
 	var scheduleEdit []string
-	json.Unmarshal(buf1, &schedule)
+	err = json.Unmarshal(buf1, &schedule)
+	if err != nil {
+		fmt.Println("Unmarshaling query failed")
+		return
+	}
 
 	var flag int
 	var station, placeN string
@@ -155,7 +207,10 @@ func Book(route string, departure string, arrival string, passNum string) {
 		scheduleEdit = append(scheduleEdit, station+":"+strconv.Itoa(bufInt))
 	}
 	var key string
-	fmt.Scan(&key)
+	_, err = fmt.Scan(&key)
+	if err != nil {
+		return
+	}
 	newJSON, _ := json.Marshal(scheduleEdit)
 
 	db.QueryRow("update train set places_available = ? where id = ?", newJSON, routeID)

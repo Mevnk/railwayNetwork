@@ -13,9 +13,17 @@ func CheckDeparture(routeName string, station string) bool {
 	}
 
 	var buf1 []byte
-	db.QueryRow("select route from train where route_name = ?", routeName).Scan(&buf1)
+	err = db.QueryRow("select route from train where route_name = ?", routeName).Scan(&buf1)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return false
+	}
 	var route []string
-	json.Unmarshal(buf1, &route)
+	err = json.Unmarshal(buf1, &route)
+	if err != nil {
+		fmt.Println("Unmarshaling failed")
+		return false
+	}
 
 	exists := false
 	for i := 0; i < len(route); i++ {
@@ -35,9 +43,17 @@ func CheckArrival(routeName string, departure string, arrival string) bool {
 	}
 
 	var buf1 []byte
-	db.QueryRow("select route from train where route_name = ?", routeName).Scan(&buf1)
+	err = db.QueryRow("select route from train where route_name = ?", routeName).Scan(&buf1)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return false
+	}
 	var route []string
-	json.Unmarshal(buf1, &route)
+	err = json.Unmarshal(buf1, &route)
+	if err != nil {
+		fmt.Println("Unmarshaling failed")
+		return false
+	}
 
 	exists := false
 	flag := 0
@@ -64,7 +80,11 @@ func CheckUser(passNum string) bool {
 	}
 
 	var exists bool
-	db.QueryRow("select exists(select id from client where passport_number = ?)", passNum).Scan(&exists)
+	err = db.QueryRow("select exists(select id from client where passport_number = ?)", passNum).Scan(&exists)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return false
+	}
 
 	return exists
 }
@@ -76,9 +96,17 @@ func CheckPlaceAvailable(route string, departure string, arrival string) bool {
 	}
 
 	var buf1 []byte
-	db.QueryRow("select places_available from train where route_name = ?", route).Scan(&buf1)
+	err = db.QueryRow("select places_available from train where route_name = ?", route).Scan(&buf1)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return false
+	}
 	var schedule []string
-	json.Unmarshal(buf1, &schedule)
+	err = json.Unmarshal(buf1, &schedule)
+	if err != nil {
+		fmt.Println("Unmarshaling failed")
+		return false
+	}
 
 	var flag int
 	var key, value string
@@ -107,9 +135,17 @@ func CheckFinalStation(route string, station string) bool {
 	}
 
 	var buf1 []byte
-	db.QueryRow("select route from train where route_name = ?", route).Scan(&buf1)
+	err = db.QueryRow("select route from train where route_name = ?", route).Scan(&buf1)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return false
+	}
 	var schedule []string
-	json.Unmarshal(buf1, &schedule)
+	err = json.Unmarshal(buf1, &schedule)
+	if err != nil {
+		fmt.Println("Unmastshal failed")
+		return false
+	}
 
 	var keys []string
 	for i := 0; i < len(schedule); i++ {
@@ -129,7 +165,11 @@ func CheckRoute(routeName string) bool {
 	}
 
 	var exists bool
-	db.QueryRow("select exists(select id from train where route_name = ?)", routeName).Scan(&exists)
+	err = db.QueryRow("select exists(select id from train where route_name = ?)", routeName).Scan(&exists)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return false
+	}
 
 	return exists
 }
@@ -141,7 +181,11 @@ func CheckAdminPrivileges(id int) bool {
 	}
 
 	var role string
-	db.QueryRow("select role from client where id = ?", id).Scan(&role)
+	err = db.QueryRow("select role from client where id = ?", id).Scan(&role)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return false
+	}
 
 	if role == "admin" {
 		return true
@@ -157,7 +201,11 @@ func CheckStationPrivileges(id int) bool {
 	}
 
 	var role string
-	db.QueryRow("select role from client where id = ?", id).Scan(&role)
+	err = db.QueryRow("select role from client where id = ?", id).Scan(&role)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return false
+	}
 
 	if role == "station" {
 		return true

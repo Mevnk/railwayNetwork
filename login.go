@@ -11,11 +11,23 @@ func (c *Driver) LoginWindow() int {
 	var login, password string
 
 	fmt.Printf("Enter login: ")
-	fmt.Scan(&login)
+	_, err := fmt.Scan(&login)
+	if err != nil {
+		fmt.Println("\nIncorrect input")
+		return 0
+	}
 	fmt.Printf("Enter password: ")
-	fmt.Scan(&password)
+	_, err = fmt.Scan(&password)
+	if err != nil {
+		fmt.Println("\nIncorrect input")
+		return 0
+	}
 	h := fnv.New32a()
-	h.Write([]byte(password))
+	_, err = h.Write([]byte(password))
+	if err != nil {
+		fmt.Println("\nHashing error")
+		return 0
+	}
 	passwordHash := strconv.Itoa(int(h.Sum32()))
 
 	loginAttmp, userID := LoginAction(login, passwordHash)
@@ -62,7 +74,10 @@ func LoginAction(login string, pHash string) (int, int) {
 	var role string
 	var id int
 	//db.QueryRow("select role from user_role where user_id = (select id from client where login = ? and password_hash = ?)", login, pHash).Scan(&role)
-	db.QueryRow("select id, role from client where login = ? and password_hash = ?", login, pHash).Scan(&id, &role)
+	err = db.QueryRow("select id, role from client where login = ? and password_hash = ?", login, pHash).Scan(&id, &role)
+	if err != nil {
+		return 0, 0
+	}
 	switch role {
 	case "customer":
 		return 4, id

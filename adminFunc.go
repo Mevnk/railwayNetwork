@@ -10,7 +10,13 @@ func (c Driver) ElevateUserWindow() int {
 	var newRole, userPassport string
 
 	fmt.Print("Enter user's passport: ")
-	fmt.Scan(&userPassport)
+	_, err := fmt.Scan(&userPassport)
+	if err != nil {
+		return 8
+	}
+	if !CheckUser(userPassport) {
+		return 8
+	}
 
 	prompt := promptui.Select{
 		Label: "Select user's new role: ",
@@ -42,7 +48,10 @@ func ElevateUser(user string, newRole string) {
 	}
 
 	var exists bool
-	db.QueryRow("select exists(select id from client where passport_number = ?)", user).Scan(&exists)
+	err1 := db.QueryRow("select exists(select id from client where passport_number = ?)", user).Scan(&exists)
+	if err1 != nil {
+		return
+	}
 	if !exists {
 		fmt.Println("No user with such passport")
 		return

@@ -35,7 +35,11 @@ func RouteAdd() {
 
 	var routeName string
 	fmt.Printf("Enter number of the route: ")
-	fmt.Scan(&routeName)
+	_, err = fmt.Scan(&routeName)
+	if err != nil {
+		fmt.Println("Input failed")
+		return
+	}
 
 	if CheckRoute(routeName) {
 		fmt.Println("A route by this number already exists")
@@ -44,7 +48,11 @@ func RouteAdd() {
 
 	var totalPlaces string
 	fmt.Printf("Enter total number of available places: ")
-	fmt.Scan(&totalPlaces)
+	_, err = fmt.Scan(&totalPlaces)
+	if err != nil {
+		fmt.Println("Input failed")
+		return
+	}
 
 	var time string
 	var routeMap []string
@@ -67,7 +75,11 @@ func RouteAdd() {
 		}
 
 		fmt.Printf("Enter the time of departure from the station (format 00:00): ")
-		fmt.Scan(&time)
+		_, err = fmt.Scan(&time)
+		if err != nil {
+			fmt.Println("Input failed")
+			return
+		}
 		if !CheckTimeCorrect(time) {
 			fmt.Println("Incorrect time format, try again...")
 			continue
@@ -83,13 +95,15 @@ func RouteAdd() {
 	//}
 
 	routeMapJSON, _ := json.Marshal(routeMap)
-	var press string
-	fmt.Scan(&press)
 	routeBookJSON, _ := json.Marshal(routeBook)
 	db.QueryRow("insert into train (total_places_available, route_name, route, places_available, delay) values (?, ?, ?, ?, 0)", totalPlaces, routeName, routeMapJSON, routeBookJSON)
 
 	var trainID int
-	db.QueryRow("select id from train where route_name = ?", routeName).Scan(&trainID)
+	err = db.QueryRow("select id from train where route_name = ?", routeName).Scan(&trainID)
+	if err != nil {
+		fmt.Println("SQL query failed")
+		return
+	}
 	for i := 0; i < len(routeMap); i++ {
 		db.QueryRow("insert into station (station_name, train_id, arrival_time) values (?, ?, ?)", routeMap[i][:len(routeMap[i])-6], trainID, routeMap[i][len(routeMap[i])-5:])
 	}
@@ -104,7 +118,11 @@ func RouteRemove() {
 
 	var routeName string
 	fmt.Printf("Enter number of the route: ")
-	fmt.Scan(&routeName)
+	_, err = fmt.Scan(&routeName)
+	if err != nil {
+		fmt.Println("Input failed")
+		return
+	}
 
 	if !CheckRoute(routeName) {
 		fmt.Println("A route by this number doesn't exist")
@@ -112,11 +130,23 @@ func RouteRemove() {
 	}
 
 	var routeID int
-	db.QueryRow("select id from train where route_name = ?", routeName).Scan(&routeID)
+	err = db.QueryRow("select id from train where route_name = ?", routeName).Scan(&routeID)
+	if err != nil {
+		fmt.Println("Query failed")
+		return
+	}
 	var buf1 []byte
-	db.QueryRow("select route from train where route_name = ?", routeName).Scan(&buf1)
+	err = db.QueryRow("select route from train where route_name = ?", routeName).Scan(&buf1)
+	if err != nil {
+		fmt.Println("Query failed")
+		return
+	}
 	var schedule []string
-	json.Unmarshal(buf1, &schedule)
+	err = json.Unmarshal(buf1, &schedule)
+	if err != nil {
+		fmt.Println("Unmarshaling failed")
+		return
+	}
 
 	for i := 0; i < len(schedule); i++ {
 		db.QueryRow("delete from station where train_id = ? and station_name = ? and arrival_time = ?", routeID, schedule[i][:len(schedule[i])-6], schedule[i][len(schedule[i])-5:])

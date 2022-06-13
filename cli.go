@@ -81,7 +81,10 @@ func (c *Driver) StationWindow() int {
 		fmt.Println("You are not assigned to a station")
 		fmt.Println("Press any key to proceed...")
 		var key string
-		fmt.Scan(&key)
+		_, err := fmt.Scan(&key)
+		if err != nil {
+			return 0
+		}
 		return 0
 	}
 
@@ -101,9 +104,17 @@ func (c *Driver) StationWindow() int {
 	case "Report departure":
 		var trainID, actualDeparture string
 		fmt.Print("Enter route number: ")
-		fmt.Scan(&trainID)
+		_, err := fmt.Scan(&trainID)
+		if err != nil {
+			fmt.Println("\nUnexpected input")
+			return 7
+		}
 		fmt.Print("Enter actual departure time (format 00:00): ")
-		fmt.Scan(&actualDeparture)
+		_, err = fmt.Scan(&actualDeparture)
+		if err != nil {
+			fmt.Println("\nUnexpected input")
+			return 7
+		}
 		fmt.Println("TEST0")
 		ReportDeparture(trainID, actualDeparture, c.userID)
 		return 7
@@ -152,7 +163,11 @@ func (c *Driver) AdminWindow() int {
 		}
 		var pNumber string
 		fmt.Printf("Enter user's passport: ")
-		fmt.Scan(&pNumber)
+		_, err := fmt.Scan(&pNumber)
+		if err != nil {
+			fmt.Println("\nUnexpected input")
+			return 8
+		}
 
 		AssignToStation(pNumber, selectStationResult)
 
