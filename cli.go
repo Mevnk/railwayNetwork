@@ -170,7 +170,7 @@ func (c *Driver) AdminWindow() int {
 			return 8
 		}
 		var pNumber string
-		fmt.Printf("Enter user's passport: ")
+		fmt.Printf("\nEnter user's passport: ")
 		_, err := fmt.Scan(&pNumber)
 		if err != nil {
 			fmt.Println("\nUnexpected input")

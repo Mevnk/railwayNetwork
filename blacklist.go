@@ -13,14 +13,14 @@ func Blacklist() {
 	}
 	_, result, err := prompt.Run()
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
+		fmt.Printf("\nPrompt failed %v\n", err)
 		return
 	}
 
 	switch result {
 	case "Add to blacklist":
 		var pNumber string
-		fmt.Printf("Enter user's passport number: ")
+		fmt.Printf("\nEnter user's passport number: ")
 		_, err := fmt.Scan(&pNumber)
 		if err != nil {
 			fmt.Println("Invalid passport")
@@ -31,7 +31,7 @@ func Blacklist() {
 		break
 	case "Remove from blacklist":
 		var pNumber string
-		fmt.Printf("Enter user's passport number: ")
+		fmt.Printf("\nEnter user's passport number: ")
 		_, err := fmt.Scan(&pNumber)
 		if err != nil {
 			fmt.Println("Invalid passport")

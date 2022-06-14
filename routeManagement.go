@@ -14,7 +14,7 @@ func RouteAdmin() {
 	}
 	_, result, err := prompt.Run()
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
+		fmt.Printf("\nPrompt failed %v\n", err)
 		return
 	}
 
@@ -34,7 +34,7 @@ func RouteAdd() {
 	}
 
 	var routeName string
-	fmt.Printf("Enter number of the route: ")
+	fmt.Printf("\nEnter number of the route: ")
 	_, err = fmt.Scan(&routeName)
 	if err != nil {
 		fmt.Println("Input failed")
@@ -47,7 +47,7 @@ func RouteAdd() {
 	}
 
 	var totalPlaces string
-	fmt.Printf("Enter total number of available places: ")
+	fmt.Printf("\nEnter total number of available places: ")
 	_, err = fmt.Scan(&totalPlaces)
 	if err != nil {
 		fmt.Println("Input failed")
@@ -63,10 +63,10 @@ func RouteAdd() {
 	}
 	i := 0
 	for true {
-		fmt.Printf("Enter station name")
+		fmt.Printf("\nEnter station name")
 		_, station, err := prompt.Run()
 		if err != nil {
-			fmt.Printf("Prompt failed %v\n", err)
+			fmt.Printf("\nPrompt failed %v\n", err)
 			return
 		}
 
@@ -74,7 +74,7 @@ func RouteAdd() {
 			break
 		}
 
-		fmt.Printf("Enter the time of departure from the station (format 00:00): ")
+		fmt.Printf("\nEnter the time of departure from the station (format 00:00): ")
 		_, err = fmt.Scan(&time)
 		if err != nil {
 			fmt.Println("Input failed")
@@ -117,7 +117,7 @@ func RouteRemove() {
 	}
 
 	var routeName string
-	fmt.Printf("Enter number of the route: ")
+	fmt.Printf("\nEnter number of the route: ")
 	_, err = fmt.Scan(&routeName)
 	if err != nil {
 		fmt.Println("Input failed")

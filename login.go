@@ -10,13 +10,13 @@ import (
 func (c *Driver) LoginWindow() int {
 	var login, password string
 
-	fmt.Printf("Enter login: ")
+	fmt.Printf("\nEnter login: ")
 	_, err := fmt.Scan(&login)
 	if err != nil {
 		fmt.Println("\nIncorrect input")
 		return 0
 	}
-	fmt.Printf("Enter password: ")
+	fmt.Printf("\nEnter password: ")
 	_, err = fmt.Scan(&password)
 	if err != nil {
 		fmt.Println("\nIncorrect input")

@@ -51,13 +51,13 @@ func SignUpAction(
 func (c Driver) SignUp() int {
 	var login, password, fName, lName, pNumber string
 
-	fmt.Printf("Enter login: ")
+	fmt.Printf("\nEnter login: ")
 	_, err := fmt.Scan(&login)
 	if err != nil {
 		fmt.Println("\nIncorrect input")
 		return 0
 	}
-	fmt.Printf("Enter password: ")
+	fmt.Printf("\nEnter password: ")
 	_, err = fmt.Scan(&password)
 	if err != nil {
 		fmt.Println("\nIncorrect input")
@@ -70,19 +70,19 @@ func (c Driver) SignUp() int {
 		return 0
 	}
 	passwordHash := strconv.Itoa(int(h.Sum32()))
-	fmt.Printf("Enter your first name: ")
+	fmt.Printf("\nEnter your first name: ")
 	_, err = fmt.Scan(&fName)
 	if err != nil {
 		fmt.Println("\nIncorrect input")
 		return 0
 	}
-	fmt.Printf("Enter last name: ")
+	fmt.Printf("\nEnter last name: ")
 	_, err = fmt.Scan(&lName)
 	if err != nil {
 		fmt.Println("\nIncorrect input")
 		return 0
 	}
-	fmt.Printf("Enter your passport number: ")
+	fmt.Printf("\nEnter your passport number: ")
 	_, err = fmt.Scan(&pNumber)
 	if err != nil {
 		fmt.Println("\nIncorrect input")

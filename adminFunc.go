@@ -26,7 +26,7 @@ func (c Driver) ElevateUserWindow() int {
 	_, role, err := prompt.Run()
 
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
+		fmt.Printf("\nPrompt failed %v\n", err)
 		return -1
 	}
 

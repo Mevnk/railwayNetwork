@@ -22,7 +22,7 @@ func (c *Driver) BookWindow() int {
 	_, DepStation, err := promptDeparture.Run()
 
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
+		fmt.Printf("\nPrompt failed %v\n", err)
 		return -1
 	}
 
@@ -32,7 +32,7 @@ func (c *Driver) BookWindow() int {
 	}
 	_, ArrStation, err := promptArrival.Run()
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
+		fmt.Printf("\nPrompt failed %v\n", err)
 		return -1
 	}
 	schedule := CheckScheduleAction(DepStation)
@@ -56,7 +56,7 @@ func (c *Driver) BookWindow() int {
 		Items: []string{"Continue", "Return"},
 	}
 	var route string
-	fmt.Printf("Enter route number: ")
+	fmt.Printf("\nEnter route number: ")
 	_, err1 := fmt.Scan(&route)
 	if err1 != nil {
 		fmt.Println("Invalid route")
@@ -72,7 +72,7 @@ func (c *Driver) BookWindow() int {
 	}
 	available := CheckPlaceAvailable(route, DepStation, ArrStation)
 	if !available {
-		fmt.Printf("All is booked")
+		fmt.Printf("\nAll is booked")
 		return 4
 	}
 	_, selectTotal, _ := promptTotal.Run()
@@ -81,7 +81,7 @@ func (c *Driver) BookWindow() int {
 	}
 
 	var pNumber string
-	fmt.Printf("Enter the passport number to book the ticket on: ")
+	fmt.Printf("\nEnter the passport number to book the ticket on: ")
 	_, err2 := fmt.Scan(&pNumber)
 	if err2 != nil {
 		fmt.Println("Invalid passport")
