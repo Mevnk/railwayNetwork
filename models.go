@@ -13,6 +13,7 @@ type Route struct {
 	RouteID     int
 	arrivalTime string
 	Stops       string
+	delay       string
 }
 
 type StopPlaces struct {

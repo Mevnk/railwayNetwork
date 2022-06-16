@@ -98,7 +98,7 @@ func (c *Driver) StationWindow() int {
 
 	prompt := promptui.Select{
 		Label: "",
-		Items: []string{"Report departure", "Log out"},
+		Items: []string{"Report", "Log out"},
 	}
 
 	_, result, err := prompt.Run()
@@ -109,7 +109,7 @@ func (c *Driver) StationWindow() int {
 	}
 
 	switch result {
-	case "Report departure":
+	case "Report":
 		var trainID, actualDeparture string
 		fmt.Print("Enter route number: ")
 		_, err := fmt.Scan(&trainID)
@@ -117,13 +117,12 @@ func (c *Driver) StationWindow() int {
 			fmt.Println("\nUnexpected input")
 			return 7
 		}
-		fmt.Print("Enter actual departure time (format 00:00): ")
+		fmt.Print("Enter actual departure (arrival if final station) time (format 00:00): ")
 		_, err = fmt.Scan(&actualDeparture)
 		if err != nil {
 			fmt.Println("\nUnexpected input")
 			return 7
 		}
-		fmt.Println("TEST0")
 		ReportDeparture(trainID, actualDeparture, c.userID)
 		return 7
 	case "Log out":

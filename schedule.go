@@ -21,7 +21,7 @@ func CheckScheduleAction(stationName string) []Route {
 		if err := rows.Scan(&route.RouteID, &route.arrivalTime); err != nil {
 			panic(err)
 		}
-		err = db.QueryRow("select route from train where id = ?", route.RouteID).Scan(&route.Stops)
+		err = db.QueryRow("select route, delay from train where id = ?", route.RouteID).Scan(&route.Stops, &route.delay)
 		if err != nil {
 			fmt.Println("\nSQL query failed")
 			return nil
@@ -70,6 +70,7 @@ func (c *Driver) StationSchedule() int {
 		fmt.Println("Route number: ", route.RouteName)
 		fmt.Println("Train arrival: ", route.arrivalTime)
 		fmt.Println("Train route: ", route.Stops)
+		fmt.Println("Delay: ", route.delay)
 	}
 
 	fmt.Println("Press any key to proceed...")

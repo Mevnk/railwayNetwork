@@ -112,7 +112,6 @@ func CheckPlaceAvailable(route string, departure string, arrival string) bool {
 	var key, value string
 	for i := 0; i < len(schedule); i++ {
 		key, value = ParseJSONBookedPlaces(schedule[i])
-		fmt.Println("TEST4.11")
 		if key == departure {
 			flag = 1
 		}
