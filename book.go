@@ -137,6 +137,7 @@ func (c *Driver) ViewTickets() int {
 		fmt.Println("Route number: ", tickets[i].train)
 		fmt.Println("Departure station: ", tickets[i].departure)
 		fmt.Println("Arrival station: ", tickets[i].arrival)
+		fmt.Println("//////////////////////////////")
 	}
 	fmt.Println("Press any key to proceed...")
 	var key string
@@ -161,12 +162,12 @@ func Book(route string, departure string, arrival string, passNum string) {
 		fmt.Println("SQL query failed")
 		return
 	}
-	err = db.QueryRow("select station.id from station where station_name = ?", departure).Scan(&departureID)
+	err = db.QueryRow("select station.id from station where station_name = ? and train_id = ?", departure, routeID).Scan(&departureID)
 	if err != nil {
 		fmt.Println("SQL query failed")
 		return
 	}
-	err = db.QueryRow("select station.id from station where station_name = ?", arrival).Scan(&arrivalID)
+	err = db.QueryRow("select station.id from station where station_name = ? and train_id = ?", arrival, routeID).Scan(&arrivalID)
 	if err != nil {
 		fmt.Println("SQL query failed")
 		return
@@ -210,11 +211,6 @@ func Book(route string, departure string, arrival string, passNum string) {
 		}
 		bufInt, _ := strconv.Atoi(fmt.Sprintf("%v", placeN))
 		scheduleEdit = append(scheduleEdit, station+":"+strconv.Itoa(bufInt))
-	}
-	var key string
-	_, err = fmt.Scan(&key)
-	if err != nil {
-		return
 	}
 	newJSON, _ := json.Marshal(scheduleEdit)
 

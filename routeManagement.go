@@ -129,6 +129,8 @@ func RouteRemove() {
 		return
 	}
 
+	ClearBooked(routeName)
+
 	var routeID int
 	err = db.QueryRow("select id from train where route_name = ?", routeName).Scan(&routeID)
 	if err != nil {
